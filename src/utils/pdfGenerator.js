@@ -14,17 +14,25 @@ function getSettings() {
     const savedSettings = localStorage.getItem('kundaliSettings')
     if (savedSettings) {
         try {
-            return JSON.parse(savedSettings)
+            const parsed = JSON.parse(savedSettings)
+            // Always use locked values
+            return {
+                ...parsed,
+                softwareName: 'Rodge Astro Software',
+                developer: 'Nihal Rodge',
+                copyrightYear: new Date().getFullYear(),
+            }
         } catch (err) {
             console.error('Error loading settings:', err)
         }
     }
     return {
-        astrologerName: 'ACHARYA.PT.BHANUPRATAP UPADHYAY',
+        astrologerName: '',
         email: '',
-        phone: '9206300143, 9211111262',
-        address: 'श्री संकटमोचन हनुमान मंदिर राजुरा, चंद्रपुर, महाराष्ट्र, ४४२९०५',
-        softwareName: 'Dhruv Astro Software',
+        phone: '',
+        address: '',
+        softwareName: 'Rodge Astro Software',
+        developer: 'Nihal Rodge',
         copyrightYear: new Date().getFullYear(),
     }
 }
