@@ -203,3 +203,4 @@ export default function KundaliDisplay({ kundaliData, formData, onBack, onDownlo
         </div>
     )
 }
+ 
