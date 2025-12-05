@@ -1,11 +1,13 @@
 import pdfMake from 'pdfmake/build/pdfmake'
-import pdfFonts from 'pdfmake/build/vfs_fonts'
+import * as pdfFonts from 'pdfmake/build/vfs_fonts'
 import { formatDateForDisplay, formatTimeForDisplay, getFullName } from './validators'
 import { getPredictions } from './predictionEngine'
 import { drawKundaliChart, drawNavamshaChart, drawChalitChart } from './chartRenderer'
 
 // Initialize pdfMake with fonts
-pdfMake.vfs = pdfFonts.pdfMake.vfs
+if (pdfFonts && pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs
+}
 
 // Get settings from localStorage
 function getSettings() {
