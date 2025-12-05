@@ -419,15 +419,15 @@ function generateKundaliCharts(kundaliData) {
 
         { text: 'Lagna Kundali (D1) / लग्न कुंडली', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawKundaliChart(kundaliData), fontSize: 8, font: 'Courier', margin: [0, 0, 0, 30] },
+        { text: drawKundaliChart(kundaliData), fontSize: 8, margin: [0, 0, 0, 30], preserveLeadingSpaces: true },
 
         { text: 'Navamsha Kundali (D9) / नवांश कुंडली', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawNavamshaChart(kundaliData), fontSize: 8, font: 'Courier', margin: [0, 0, 0, 30] },
+        { text: drawNavamshaChart(kundaliData), fontSize: 8, margin: [0, 0, 0, 30], preserveLeadingSpaces: true },
 
         { text: 'Chalit Chakra / चलित चक्र', style: 'subsectionTitle' },
         { text: '[Bhava Chalit Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawChalitChart(kundaliData), fontSize: 8, font: 'Courier' },
+        { text: drawChalitChart(kundaliData), fontSize: 8, preserveLeadingSpaces: true },
     ]
 }
 
