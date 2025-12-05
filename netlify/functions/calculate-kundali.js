@@ -1,15 +1,8 @@
 // Netlify serverless function for Vedic astrology calculations
-// Using simplified astronomical calculations (fallback when Swiss Ephemeris is not available)
+// Using simplified astronomical calculations
 
-// Try to load swisseph, fall back to simplified calculations if not available
-let swisseph;
-try {
-    swisseph = require('swisseph');
-    swisseph.swe_set_ephe_path(__dirname + '/../../public/sweph');
-} catch (err) {
-    console.log('Swiss Ephemeris not available, using simplified calculations');
-    swisseph = null;
-}
+// Swiss Ephemeris is not available, using simplified calculations
+const swisseph = null;
 
 // Zodiac signs
 const ZODIAC_SIGNS = [
@@ -88,15 +81,8 @@ exports.handler = async (event, context) => {
         const [year, month, day] = dateOfBirth.split('-').map(Number)
         const [hours, minutes, seconds = 0] = timeOfBirth.split(':').map(Number)
 
-        let kundaliData;
-
-        if (swisseph) {
-            // Use Swiss Ephemeris for accurate calculations
-            kundaliData = await calculateWithSwisseph(year, month, day, hours, minutes, seconds, location)
-        } else {
-            // Use simplified calculations
-            kundaliData = calculateSimplified(year, month, day, hours, minutes, seconds, location)
-        }
+        // Use simplified calculations
+        const kundaliData = calculateSimplified(year, month, day, hours, minutes, seconds, location)
 
         return {
             statusCode: 200,
@@ -114,7 +100,7 @@ exports.handler = async (event, context) => {
     }
 }
 
-// Simplified calculation method (when Swiss Ephemeris is not available)
+// Simplified calculation method
 function calculateSimplified(year, month, day, hours, minutes, seconds, location) {
     // Calculate Julian Day (simplified)
     const a = Math.floor((14 - month) / 12)
