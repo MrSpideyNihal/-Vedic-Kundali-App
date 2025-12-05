@@ -1,15 +1,29 @@
 import { useState } from 'react'
+import LoginPage from './components/LoginPage'
 import KundaliForm from './components/KundaliForm'
 import SettingsPage from './components/SettingsPage'
 import KundaliDisplay from './components/KundaliDisplay'
 import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [currentPage, setCurrentPage] = useState('home') // 'home', 'settings', 'result'
     const [kundaliData, setKundaliData] = useState(null)
     const [formData, setFormData] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+
+    const handleLogin = () => {
+        setIsLoggedIn(true)
+    }
+
+    const handleLogout = () => {
+        setIsLoggedIn(false)
+        setCurrentPage('home')
+        setKundaliData(null)
+        setFormData(null)
+        setError(null)
+    }
 
     const handleFormSubmit = async (data) => {
         setLoading(true)
@@ -69,6 +83,11 @@ function App() {
         setError(null)
     }
 
+    // Show login page if not logged in
+    if (!isLoggedIn) {
+        return <LoginPage onLogin={handleLogin} />
+    }
+
     return (
         <div className="min-h-screen">
             {/* Header */}
@@ -79,21 +98,32 @@ function App() {
                             <div className="text-3xl">🕉️</div>
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-bold text-white font-hindi">
-                                    ध्रुव प्रीमियम कुंडली
+                                    रोडगे एस्ट्रो कुंडली
                                 </h1>
-                                <p className="text-orange-100 text-sm">Dhruv Premium Kundali</p>
+                                <p className="text-orange-100 text-sm">Rodge Astro Software</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setCurrentPage('settings')}
-                            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                            title="Settings"
-                        >
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </button>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={() => setCurrentPage('settings')}
+                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                title="Settings"
+                            >
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                title="Logout"
+                            >
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -140,10 +170,10 @@ function App() {
             <footer className="bg-gray-800 text-white py-8 mt-16">
                 <div className="container mx-auto px-4 text-center">
                     <p className="text-sm">
-                        © 2025 Dhruv Astro Software. All rights reserved.
+                        © 2025 Rodge Astro Software. All rights reserved.
                     </p>
                     <p className="text-xs text-gray-400 mt-2">
-                        Powered by Swiss Ephemeris for accurate Vedic calculations
+                        Developed by Nihal Rodge | Powered by Vedic Astrology
                     </p>
                 </div>
             </footer>
@@ -152,4 +182,3 @@ function App() {
 }
 
 export default App
-
