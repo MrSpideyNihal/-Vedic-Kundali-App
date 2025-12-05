@@ -649,3 +649,4 @@ function getLuckyNumber(sign) {
     }
     return numbers[sign] || '1'
 }
+ 
