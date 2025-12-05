@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import KundaliForm from './components/KundaliForm'
 import SettingsPage from './components/SettingsPage'
-import PDFPreview from './components/PDFPreview'
+import KundaliDisplay from './components/KundaliDisplay'
 import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
     const [currentPage, setCurrentPage] = useState('home') // 'home', 'settings', 'result'
     const [kundaliData, setKundaliData] = useState(null)
-    const [pdfBlob, setPdfBlob] = useState(null)
+    const [formData, setFormData] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
 
-    const handleFormSubmit = async (formData) => {
+    const handleFormSubmit = async (data) => {
         setLoading(true)
         setError(null)
 
@@ -22,21 +22,16 @@ function App() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(data),
             })
 
             if (!response.ok) {
                 throw new Error('Failed to calculate kundali')
             }
 
-            const data = await response.json()
-            setKundaliData(data)
-
-            // Generate PDF
-            const { generatePDF } = await import('./utils/pdfGenerator')
-            const blob = await generatePDF(data, formData)
-            setPdfBlob(blob)
-
+            const kundali = await response.json()
+            setKundaliData(kundali)
+            setFormData(data)
             setCurrentPage('result')
         } catch (err) {
             console.error('Error generating kundali:', err)
@@ -46,10 +41,31 @@ function App() {
         }
     }
 
+    const handleDownloadPDF = async () => {
+        try {
+            // Generate PDF
+            const { generatePDF } = await import('./utils/pdfGenerator')
+            const blob = await generatePDF(kundaliData, formData)
+
+            // Download the PDF
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `Kundali_${formData.firstName}_${formData.lastName}_${new Date().getTime()}.pdf`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Error generating PDF:', err)
+            alert('Failed to generate PDF. Please try again.')
+        }
+    }
+
     const handleBackToHome = () => {
         setCurrentPage('home')
         setKundaliData(null)
-        setPdfBlob(null)
+        setFormData(null)
         setError(null)
     }
 
@@ -110,8 +126,13 @@ function App() {
                     <SettingsPage onBack={() => setCurrentPage('home')} />
                 )}
 
-                {!loading && currentPage === 'result' && pdfBlob && (
-                    <PDFPreview pdfBlob={pdfBlob} onBack={handleBackToHome} />
+                {!loading && currentPage === 'result' && kundaliData && (
+                    <KundaliDisplay
+                        kundaliData={kundaliData}
+                        formData={formData}
+                        onBack={handleBackToHome}
+                        onDownloadPDF={handleDownloadPDF}
+                    />
                 )}
             </main>
 
@@ -131,3 +152,4 @@ function App() {
 }
 
 export default App
+
