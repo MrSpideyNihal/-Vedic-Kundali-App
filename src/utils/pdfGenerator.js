@@ -237,8 +237,8 @@ export async function generatePDF(kundaliData, formData) {
 function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
     return [
         { text: '🕉️', fontSize: 48, alignment: 'center', margin: [0, 40, 0, 20] },
-        { text: 'ध्रुव प्रीमियम कुंडली', style: 'coverTitle' },
-        { text: 'Dhruv Premium Kundali', style: 'coverSubtitle' },
+        { text: 'वैदिक कुंडली', style: 'coverTitle' },
+        { text: 'Vedic Kundali', style: 'coverSubtitle' },
 
         {
             canvas: [
@@ -281,12 +281,12 @@ function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
         },
 
         { text: 'Horoscope By', fontSize: 12, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
-        { text: settings.astrologerName, fontSize: 14, bold: true, color: '#f97316', alignment: 'center', margin: [0, 0, 0, 5] },
-        { text: settings.address, fontSize: 10, alignment: 'center', margin: [0, 0, 0, 5] },
-        { text: settings.phone, fontSize: 10, alignment: 'center', margin: [0, 0, 0, 30] },
+        { text: settings.astrologerName || 'Astrologer Name', fontSize: 14, bold: true, color: '#f97316', alignment: 'center', margin: [0, 0, 0, 5] },
+        { text: settings.address || '', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 5] },
+        { text: settings.phone || '', fontSize: 10, alignment: 'center', margin: [0, 0, 0, 30] },
 
         {
-            text: `Copyright © ${settings.copyrightYear} by ${settings.softwareName}. All rights reserved.\nIt is illegal to modify this PDF. Check complete Terms of Use.`,
+            text: `Copyright © ${settings.copyrightYear} by Rodge Astro Software. All rights reserved.\\nDeveloped by Nihal Rodge\\nIt is illegal to modify this PDF. Check complete Terms of Use.`,
             fontSize: 8,
             color: '#666',
             alignment: 'center',
@@ -297,23 +297,14 @@ function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
 
 function generateTableOfContents() {
     const sections = [
-        { title: 'मुख्य विवरण', page: 6 },
-        { title: 'घात एवं अनुकूल बिंदु', page: 7 },
-        { title: 'ग्रह स्थिति', page: 8 },
-        { title: 'चलित तालिका एवं चलित चक्र', page: 9 },
-        { title: 'आपकी कुंडली के प्रमुख बिंदु', page: 10 },
-        { title: 'लग्न रिपोर्ट', page: 11 },
-        { title: 'चंद्र राशि रिपोर्ट', page: 15 },
-        { title: 'नक्षत्र रिपोर्ट', page: 19 },
-        { title: 'पंचांग फल', page: 23 },
-        { title: 'विस्तृत भविष्यफल', page: 27 },
-        { title: 'भाव फल', page: 35 },
-        { title: 'योग एवं राजयोग', page: 50 },
-        { title: 'मांगलिक दोष', page: 55 },
-        { title: 'साढ़े साती', page: 58 },
-        { title: 'कालसर्प दोष', page: 61 },
-        { title: 'विम्शोत्तरी दशा', page: 64 },
-        { title: 'उपाय', page: 70 },
+        { title: 'मुख्य विवरण', page: 3 },
+        { title: 'ग्रह स्थिति', page: 4 },
+        { title: 'कुंडली चक्र', page: 5 },
+        { title: 'आपकी कुंडली के प्रमुख बिंदु', page: 6 },
+        { title: 'विस्तृत भविष्यफल', page: 7 },
+        { title: 'विम्शोत्तरी दशा', page: 8 },
+        { title: 'योग एवं दोष', page: 9 },
+        { title: 'उपाय', page: 10 },
     ]
 
     return [
