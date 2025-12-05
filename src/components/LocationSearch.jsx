@@ -35,9 +35,6 @@ export default function LocationSearch({ onLocationSelect, error }) {
                         format: 'json',
                         addressdetails: 1,
                         limit: 10,
-                    },
-                    headers: {
-                        'User-Agent': 'VedicKundaliApp/1.0'
                     }
                 })
 
