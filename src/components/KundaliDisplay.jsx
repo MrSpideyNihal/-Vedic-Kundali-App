@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import KundaliChartSVG from './KundaliChartSVG'
 
 export default function KundaliDisplay({ kundaliData, formData, onBack, onDownloadPDF }) {
     const [downloading, setDownloading] = useState(false)
@@ -116,44 +117,25 @@ export default function KundaliDisplay({ kundaliData, formData, onBack, onDownlo
                     </div>
                 </div>
 
-                {/* Nakshatra & Panchang */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="card">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">जन्म नक्षत्र</h3>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Nakshatra:</span>
-                                <span className="font-semibold">{kundaliData.nakshatra.name}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Pada:</span>
-                                <span className="font-semibold">{kundaliData.nakshatra.pada}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Lord:</span>
-                                <span className="font-semibold">{kundaliData.nakshatra.lord}</span>
+                {/* Kundali Charts */}
+                <div className="card">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">कुंडली चक्र</h3>
+                    <p className="text-gray-600 mb-6">North Indian Style Charts</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Lagna Chart */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-3 text-center">Lagna Kundali (D1)</h4>
+                            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 p-6 rounded-lg">
+                                <KundaliChartSVG kundaliData={kundaliData} chartType="lagna" />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="card">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">पंचांग</h3>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Tithi:</span>
-                                <span className="font-semibold">{kundaliData.panchang.tithi}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Weekday:</span>
-                                <span className="font-semibold">{kundaliData.panchang.weekday}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Karana:</span>
-                                <span className="font-semibold">{kundaliData.panchang.karana}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">Yoga:</span>
-                                <span className="font-semibold">{kundaliData.panchang.yoga}</span>
+                        {/* Navamsha Chart */}
+                        <div>
+                            <h4 className="font-semibold text-gray-700 mb-3 text-center">Navamsha (D9)</h4>
+                            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-lg">
+                                <KundaliChartSVG kundaliData={kundaliData} chartType="navamsha" />
                             </div>
                         </div>
                     </div>
@@ -189,84 +171,6 @@ export default function KundaliDisplay({ kundaliData, formData, onBack, onDownlo
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-
-                {/* Current Dasha */}
-                <div className="card">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">विम्शोत्तरी दशा</h3>
-                    <div className="bg-gradient-orange text-white p-6 rounded-lg mb-4">
-                        <p className="text-sm opacity-90 mb-2">Current Mahadasha</p>
-                        <p className="text-3xl font-bold">{kundaliData.currentDasha.planet}</p>
-                        <p className="text-sm mt-2">
-                            Balance: {kundaliData.currentDasha.balance.years}Y {kundaliData.currentDasha.balance.months}M {kundaliData.currentDasha.balance.days}D
-                        </p>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="px-4 py-2 text-left">Planet</th>
-                                    <th className="px-4 py-2 text-left">Start Date</th>
-                                    <th className="px-4 py-2 text-left">End Date</th>
-                                    <th className="px-4 py-2 text-left">Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {kundaliData.dashaSequence.slice(0, 5).map((dasha, index) => (
-                                    <tr key={index} className="border-b">
-                                        <td className="px-4 py-2 font-semibold">{dasha.planet}</td>
-                                        <td className="px-4 py-2">{dasha.startDate}</td>
-                                        <td className="px-4 py-2">{dasha.endDate}</td>
-                                        <td className="px-4 py-2">{dasha.years} years</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Yogas and Doshas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="card">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">योग</h3>
-                        {kundaliData.yogas.length > 0 ? (
-                            <ul className="space-y-2">
-                                {kundaliData.yogas.map((yoga, index) => (
-                                    <li key={index} className="flex items-start">
-                                        <span className="text-green-500 mr-2">✓</span>
-                                        <span>{yoga}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500">No major yogas detected</p>
-                        )}
-                    </div>
-
-                    <div className="card">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4 font-hindi">दोष</h3>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                <span>Mangal Dosha</span>
-                                <span className={`font-semibold ${kundaliData.doshas.mangal ? 'text-red-600' : 'text-green-600'}`}>
-                                    {kundaliData.doshas.mangal ? 'Present' : 'Not Present'}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                <span>Kaal Sarp Dosha</span>
-                                <span className={`font-semibold ${kundaliData.doshas.kaalSarp ? 'text-red-600' : 'text-green-600'}`}>
-                                    {kundaliData.doshas.kaalSarp ? 'Present' : 'Not Present'}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                                <span>Sade Sati</span>
-                                <span className={`font-semibold ${kundaliData.doshas.sadeSati ? 'text-orange-600' : 'text-green-600'}`}>
-                                    {kundaliData.doshas.sadeSati ? 'Active' : 'Not Active'}
-                                </span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
