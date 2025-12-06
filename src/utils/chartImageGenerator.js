@@ -70,66 +70,141 @@ export async function generateChartImage(kundaliData, chartType = 'lagna') {
     })
 }
 
+
+
+
+
+
 /**
- * Draw North Indian style diamond chart on canvas
+ * Draw North Indian style rectangular chart on canvas (matching reference image)
  */
 function drawNorthIndianChart(ctx, houses, size) {
-    const centerX = size / 2
-    const centerY = size / 2
-    const radius = size * 0.4
+    const padding = 30
+    const width = size - (padding * 2)
+    const height = width * 0.7 // Rectangular ratio
+    const startX = padding
+    const startY = (size - height) / 2
 
-    // Set up drawing styles
-    ctx.strokeStyle = '#f97316'
+    // Calculate key points
+    const centerX = startX + width / 2
+    const centerY = startY + height / 2
+    const topY = startY
+    const bottomY = startY + height
+    const leftX = startX
+    const rightX = startX + width
+
+    // Diagonal line colors (matching reference image)
+    const colors = {
+        topLeft: '#8B7355',      // Brown
+        topRight: '#FF8C42',     // Orange
+        bottomRight: '#4A90E2',  // Blue
+        bottomLeft: '#90EE90'    // Green
+    }
+
+    // Draw outer rectangle
+    ctx.strokeStyle = '#D4AF37' // Gold color
+    ctx.lineWidth = 3
+    ctx.strokeRect(leftX, topY, width, height)
+
+    // Draw diagonal lines with colors
     ctx.lineWidth = 2
 
-    // Draw diamond outline
+    // Top-left to center (brown)
+    ctx.strokeStyle = colors.topLeft
     ctx.beginPath()
-    ctx.moveTo(centerX, centerY - radius)
-    ctx.lineTo(centerX + radius, centerY)
-    ctx.lineTo(centerX, centerY + radius)
-    ctx.lineTo(centerX - radius, centerY)
-    ctx.closePath()
+    ctx.moveTo(leftX, topY)
+    ctx.lineTo(centerX, centerY)
     ctx.stroke()
 
-    // Draw inner divisions
-    ctx.lineWidth = 1
-
-    // Vertical and horizontal lines
+    // Top-right to center (orange)
+    ctx.strokeStyle = colors.topRight
     ctx.beginPath()
-    ctx.moveTo(centerX, centerY - radius)
-    ctx.lineTo(centerX, centerY + radius)
+    ctx.moveTo(rightX, topY)
+    ctx.lineTo(centerX, centerY)
+    ctx.stroke()
+
+    // Bottom-right to center (blue)
+    ctx.strokeStyle = colors.bottomRight
+    ctx.beginPath()
+    ctx.moveTo(rightX, bottomY)
+    ctx.lineTo(centerX, centerY)
+    ctx.stroke()
+
+    // Bottom-left to center (green)
+    ctx.strokeStyle = colors.bottomLeft
+    ctx.beginPath()
+    ctx.moveTo(leftX, bottomY)
+    ctx.lineTo(centerX, centerY)
+    ctx.stroke()
+
+    // Draw middle horizontal line (blue)
+    ctx.strokeStyle = colors.bottomRight
+    ctx.beginPath()
+    ctx.moveTo(leftX, centerY)
+    ctx.lineTo(rightX, centerY)
+    ctx.stroke()
+
+    // Draw middle vertical line (blue)
+    ctx.beginPath()
+    ctx.moveTo(centerX, topY)
+    ctx.lineTo(centerX, bottomY)
+    ctx.stroke()
+
+    // Additional diagonal lines for house divisions
+    const quarterX = width / 4
+    const quarterY = height / 4
+
+    // Left side diagonals
+    ctx.strokeStyle = colors.bottomLeft
+    ctx.beginPath()
+    ctx.moveTo(leftX + quarterX, topY)
+    ctx.lineTo(leftX, topY + quarterY)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.moveTo(centerX - radius, centerY)
-    ctx.lineTo(centerX + radius, centerY)
+    ctx.moveTo(leftX + quarterX, bottomY)
+    ctx.lineTo(leftX, bottomY - quarterY)
     ctx.stroke()
 
-    // Diagonal lines
+    // Right side diagonals
+    ctx.strokeStyle = colors.topRight
     ctx.beginPath()
-    ctx.moveTo(centerX - radius * 0.707, centerY - radius * 0.707)
-    ctx.lineTo(centerX + radius * 0.707, centerY + radius * 0.707)
+    ctx.moveTo(rightX - quarterX, topY)
+    ctx.lineTo(rightX, topY + quarterY)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.moveTo(centerX + radius * 0.707, centerY - radius * 0.707)
-    ctx.lineTo(centerX - radius * 0.707, centerY + radius * 0.707)
+    ctx.moveTo(rightX - quarterX, bottomY)
+    ctx.lineTo(rightX, bottomY - quarterY)
     ctx.stroke()
 
-    // House positions (North Indian style)
+    // House positions (North Indian rectangular style - ACCURATE)
+    // Houses are numbered counter-clockwise starting from ascendant (house 1)
     const housePositions = [
-        { x: centerX + radius * 0.6, y: centerY - radius * 0.3, label: '1' },   // Right upper
-        { x: centerX + radius * 0.6, y: centerY + radius * 0.1, label: '2' },   // Right middle-upper
-        { x: centerX + radius * 0.6, y: centerY + radius * 0.5, label: '3' },   // Right middle-lower
-        { x: centerX + radius * 0.3, y: centerY + radius * 0.7, label: '4' },   // Bottom right
-        { x: centerX + radius * 0.0, y: centerY + radius * 0.7, label: '5' },   // Bottom middle-right
-        { x: centerX - radius * 0.3, y: centerY + radius * 0.7, label: '6' },   // Bottom middle-left
-        { x: centerX - radius * 0.6, y: centerY + radius * 0.5, label: '7' },   // Left middle-lower
-        { x: centerX - radius * 0.6, y: centerY + radius * 0.1, label: '8' },   // Left middle-upper
-        { x: centerX - radius * 0.6, y: centerY - radius * 0.3, label: '9' },   // Left upper
-        { x: centerX - radius * 0.3, y: centerY - radius * 0.7, label: '10' },  // Top left
-        { x: centerX + radius * 0.0, y: centerY - radius * 0.7, label: '11' },  // Top middle-left
-        { x: centerX + radius * 0.3, y: centerY - radius * 0.7, label: '12' }   // Top middle-right
+        // House 1 - Right middle
+        { x: rightX - 40, y: centerY, label: '1', align: 'right' },
+        // House 2 - Right bottom
+        { x: rightX - 50, y: bottomY - 50, label: '2', align: 'right' },
+        // House 3 - Bottom right
+        { x: centerX + 80, y: bottomY - 35, label: '3', align: 'center' },
+        // House 4 - Bottom middle-right
+        { x: centerX + 30, y: bottomY - 35, label: '4', align: 'center' },
+        // House 5 - Bottom middle-left  
+        { x: centerX - 30, y: bottomY - 35, label: '5', align: 'center' },
+        // House 6 - Bottom left
+        { x: centerX - 80, y: bottomY - 35, label: '6', align: 'center' },
+        // House 7 - Left middle
+        { x: leftX + 40, y: centerY, label: '7', align: 'left' },
+        // House 8 - Left top
+        { x: leftX + 50, y: topY + 50, label: '8', align: 'left' },
+        // House 9 - Top left
+        { x: centerX - 80, y: topY + 35, label: '9', align: 'center' },
+        // House 10 - Top middle-left
+        { x: centerX - 30, y: topY + 35, label: '10', align: 'center' },
+        // House 11 - Top middle-right
+        { x: centerX + 30, y: topY + 35, label: '11', align: 'center' },
+        // House 12 - Top right
+        { x: centerX + 80, y: topY + 35, label: '12', align: 'center' }
     ]
 
     // Draw house numbers and planets
@@ -137,35 +212,21 @@ function drawNorthIndianChart(ctx, houses, size) {
         const planets = houses[index] || []
 
         // Draw house number
-        ctx.fillStyle = '#666666'
-        ctx.font = 'bold 12px Arial'
+        ctx.fillStyle = '#4A90E2' // Blue color for numbers
+        ctx.font = 'bold 16px Arial'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(pos.label, pos.x, pos.y)
+        ctx.fillText(pos.label, pos.x, pos.y - 10)
 
         // Draw planets if present
         if (planets.length > 0) {
-            ctx.fillStyle = '#f97316'
-            ctx.font = 'bold 16px Arial'
-            ctx.fillText(planets.join(' '), pos.x, pos.y + 18)
+            ctx.fillStyle = '#FF6B35' // Orange color for planets
+            ctx.font = 'bold 18px Arial'
+            ctx.textAlign = 'center'
+            const planetText = planets.join(' ')
+            ctx.fillText(planetText, pos.x, pos.y + 15)
         }
     })
-
-    // Draw center decoration
-    ctx.beginPath()
-    ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI)
-    ctx.fillStyle = '#fff7ed'
-    ctx.fill()
-    ctx.strokeStyle = '#f97316'
-    ctx.lineWidth = 1
-    ctx.stroke()
-
-    // Draw Om symbol
-    ctx.fillStyle = '#f97316'
-    ctx.font = 'bold 20px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('ॐ', centerX, centerY)
 }
 
 /**
