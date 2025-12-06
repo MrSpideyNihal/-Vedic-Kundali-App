@@ -1,4 +1,4 @@
-// SVG-based Kundali Chart Component (North Indian Style)
+// SVG-based Kundali Chart Component (North Indian Rectangular Style)
 
 export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
     const PLANET_SYMBOLS = {
@@ -33,38 +33,63 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         })
     }
 
-    // North Indian chart layout positions
-    // Diamond shape with 12 houses
+    // Rectangular chart dimensions
+    const width = 600
+    const height = 420
+    const centerX = width / 2
+    const centerY = height / 2
+
+    // Diagonal line colors
+    const colors = {
+        topLeft: '#8B7355',
+        topRight: '#FF8C42',
+        bottomRight: '#4A90E2',
+        bottomLeft: '#90EE90'
+    }
+
+    // House positions (North Indian rectangular style - matching reference)
     const housePositions = [
-        { x: 200, y: 50, label: '1' },   // Top right
-        { x: 250, y: 100, label: '2' },  // Right upper
-        { x: 250, y: 150, label: '3' },  // Right middle
-        { x: 200, y: 200, label: '4' },  // Bottom right
-        { x: 150, y: 250, label: '5' },  // Bottom middle-right
-        { x: 100, y: 250, label: '6' },  // Bottom middle-left
-        { x: 50, y: 200, label: '7' },   // Bottom left
-        { x: 0, y: 150, label: '8' },    // Left middle
-        { x: 0, y: 100, label: '9' },    // Left upper
-        { x: 50, y: 50, label: '10' },   // Top left
-        { x: 100, y: 0, label: '11' },   // Top middle-left
-        { x: 150, y: 0, label: '12' }    // Top middle-right
+        { x: width - 60, y: centerY, label: '1' },           // House 1 - Right middle
+        { x: width - 70, y: height - 70, label: '2' },       // House 2 - Right bottom
+        { x: centerX + 120, y: height - 50, label: '3' },    // House 3 - Bottom right
+        { x: centerX + 45, y: height - 50, label: '4' },     // House 4 - Bottom middle-right
+        { x: centerX - 45, y: height - 50, label: '5' },     // House 5 - Bottom middle-left
+        { x: centerX - 120, y: height - 50, label: '6' },    // House 6 - Bottom left
+        { x: 60, y: centerY, label: '7' },                   // House 7 - Left middle
+        { x: 70, y: 70, label: '8' },                        // House 8 - Left top
+        { x: centerX - 120, y: 50, label: '9' },             // House 9 - Top left
+        { x: centerX - 45, y: 50, label: '10' },             // House 10 - Top middle-left
+        { x: centerX + 45, y: 50, label: '11' },             // House 11 - Top middle-right
+        { x: centerX + 120, y: 50, label: '12' }             // House 12 - Top right
     ]
 
     return (
-        <svg viewBox="-10 -10 270 270" className="w-full h-auto">
-            {/* Diamond outline */}
-            <path
-                d="M 125,0 L 250,125 L 125,250 L 0,125 Z"
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
+            {/* Outer rectangle */}
+            <rect
+                x="0" y="0"
+                width={width}
+                height={height}
                 fill="white"
-                stroke="#f97316"
-                strokeWidth="2"
+                stroke="#D4AF37"
+                strokeWidth="3"
             />
 
-            {/* Inner divisions */}
-            <line x1="125" y1="0" x2="125" y2="250" stroke="#f97316" strokeWidth="1" />
-            <line x1="0" y1="125" x2="250" y2="125" stroke="#f97316" strokeWidth="1" />
-            <line x1="62.5" y1="62.5" x2="187.5" y2="187.5" stroke="#f97316" strokeWidth="1" />
-            <line x1="187.5" y1="62.5" x2="62.5" y2="187.5" stroke="#f97316" strokeWidth="1" />
+            {/* Diagonal lines from corners to center */}
+            <line x1="0" y1="0" x2={centerX} y2={centerY} stroke={colors.topLeft} strokeWidth="2" />
+            <line x1={width} y1="0" x2={centerX} y2={centerY} stroke={colors.topRight} strokeWidth="2" />
+            <line x1={width} y1={height} x2={centerX} y2={centerY} stroke={colors.bottomRight} strokeWidth="2" />
+            <line x1="0" y1={height} x2={centerX} y2={centerY} stroke={colors.bottomLeft} strokeWidth="2" />
+
+            {/* Middle horizontal and vertical lines */}
+            <line x1="0" y1={centerY} x2={width} y2={centerY} stroke={colors.bottomRight} strokeWidth="2" />
+            <line x1={centerX} y1="0" x2={centerX} y2={height} stroke={colors.bottomRight} strokeWidth="2" />
+
+            {/* Additional diagonal lines for house divisions */}
+            <line x1={width / 4} y1="0" x2="0" y2={height / 4} stroke={colors.bottomLeft} strokeWidth="2" />
+            <line x1={width / 4} y1={height} x2="0" y2={height * 3 / 4} stroke={colors.bottomLeft} strokeWidth="2" />
+            <line x1={width * 3 / 4} y1="0" x2={width} y2={height / 4} stroke={colors.topRight} strokeWidth="2" />
+            <line x1={width * 3 / 4} y1={height} x2={width} y2={height * 3 / 4} stroke={colors.topRight} strokeWidth="2" />
 
             {/* House numbers and planets */}
             {housePositions.map((pos, index) => {
@@ -74,9 +99,9 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
                         {/* House number */}
                         <text
                             x={pos.x}
-                            y={pos.y + 5}
-                            fontSize="10"
-                            fill="#666"
+                            y={pos.y - 10}
+                            fontSize="18"
+                            fill="#4A90E2"
                             textAnchor="middle"
                             fontWeight="bold"
                         >
@@ -87,9 +112,9 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
                         {planets.length > 0 && (
                             <text
                                 x={pos.x}
-                                y={pos.y + 20}
-                                fontSize="14"
-                                fill="#f97316"
+                                y={pos.y + 15}
+                                fontSize="20"
+                                fill="#FF6B35"
                                 textAnchor="middle"
                                 fontWeight="bold"
                             >
@@ -99,19 +124,6 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
                     </g>
                 )
             })}
-
-            {/* Center decoration */}
-            <circle cx="125" cy="125" r="15" fill="#fff7ed" stroke="#f97316" strokeWidth="1" />
-            <text
-                x="125"
-                y="132"
-                fontSize="16"
-                fill="#f97316"
-                textAnchor="middle"
-                fontWeight="bold"
-            >
-                ॐ
-            </text>
         </svg>
     )
 }
