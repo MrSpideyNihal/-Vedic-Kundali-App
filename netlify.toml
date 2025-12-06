@@ -3,6 +3,13 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Exclude assets from SPA redirect
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
+# SPA redirect for all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -10,6 +17,11 @@
 
 [build.environment]
   NODE_VERSION = "18"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/*"
