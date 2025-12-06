@@ -6,7 +6,6 @@ export default function SettingsPage({ onBack }) {
         email: '',
         phone: '',
         address: '',
-        pdfLanguage: 'english', // 'english' or 'hindi'
         softwareName: 'Rodge Astro Software', // Locked
         developer: 'Nihal Rodge', // Locked
         copyrightYear: new Date().getFullYear(),
@@ -25,7 +24,6 @@ export default function SettingsPage({ onBack }) {
                     softwareName: 'Rodge Astro Software', // Always locked
                     developer: 'Nihal Rodge', // Always locked
                     copyrightYear: new Date().getFullYear(),
-                    pdfLanguage: parsed.pdfLanguage || 'english', // Default to english
                 })
             } catch (err) {
                 console.error('Error loading settings:', err)
@@ -118,20 +116,6 @@ export default function SettingsPage({ onBack }) {
                             className="input-field"
                             placeholder="+91 XXXXXXXXXX"
                         />
-                    </div>
-
-                    {/* PDF Language Selection */}
-                    <div>
-                        <label className="label">PDF Language Preference</label>
-                        <select
-                            value={settings.pdfLanguage}
-                            onChange={(e) => setSettings({ ...settings, pdfLanguage: e.target.value })}
-                            className="input-field"
-                        >
-                            <option value="english">English Only</option>
-                            <option value="hindi">Hindi + English (Bilingual)</option>
-                        </select>
-                        <p className="text-xs text-gray-500 mt-1">Choose language for PDF report headings and labels</p>
                     </div>
 
                     <div>
