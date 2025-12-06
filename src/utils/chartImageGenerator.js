@@ -20,42 +20,54 @@ const PLANET_SYMBOLS = {
  * @returns {Promise<string>} Base64 data URL of the chart image
  */
 export async function generateChartImage(kundaliData, chartType = 'lagna') {
-    // Create canvas
-    const canvas = document.createElement('canvas')
-    const size = 400
-    canvas.width = size
-    canvas.height = size
-    const ctx = canvas.getContext('2d')
+    return new Promise((resolve, reject) => {
+        try {
+            // Create canvas outside of React's rendering
+            const canvas = document.createElement('canvas')
+            const size = 400
+            canvas.width = size
+            canvas.height = size
+            const ctx = canvas.getContext('2d')
 
-    // Set background
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, size, size)
+            // Set background
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, size, size)
 
-    // Initialize houses
-    const houses = Array(12).fill(null).map(() => [])
+            // Initialize houses
+            const houses = Array(12).fill(null).map(() => [])
 
-    // Place planets in houses based on chart type
-    if (chartType === 'lagna' || chartType === 'chalit') {
-        // Lagna/Chalit chart - use actual house positions
-        Object.entries(kundaliData.planets).forEach(([planet, data]) => {
-            const houseIndex = data.house - 1
-            houses[houseIndex].push(PLANET_SYMBOLS[planet])
-        })
-        // Add ascendant to first house
-        houses[0].push('ल')
-    } else if (chartType === 'navamsha') {
-        // Navamsha chart - simplified calculation
-        Object.entries(kundaliData.planets).forEach(([planet, data]) => {
-            const navamshaHouse = calculateNavamshaHouse(data.degree, data.sign)
-            houses[navamshaHouse].push(PLANET_SYMBOLS[planet])
-        })
-    }
+            // Place planets in houses based on chart type
+            if (chartType === 'lagna' || chartType === 'chalit') {
+                // Lagna/Chalit chart - use actual house positions
+                Object.entries(kundaliData.planets).forEach(([planet, data]) => {
+                    const houseIndex = data.house - 1
+                    houses[houseIndex].push(PLANET_SYMBOLS[planet])
+                })
+                // Add ascendant to first house
+                houses[0].push('ल')
+            } else if (chartType === 'navamsha') {
+                // Navamsha chart - simplified calculation
+                Object.entries(kundaliData.planets).forEach(([planet, data]) => {
+                    const navamshaHouse = calculateNavamshaHouse(data.degree, data.sign)
+                    houses[navamshaHouse].push(PLANET_SYMBOLS[planet])
+                })
+            }
 
-    // Draw the chart
-    drawNorthIndianChart(ctx, houses, size)
+            // Draw the chart
+            drawNorthIndianChart(ctx, houses, size)
 
-    // Convert to base64 data URL
-    return canvas.toDataURL('image/png')
+            // Convert to base64 data URL
+            const dataUrl = canvas.toDataURL('image/png')
+
+            // Clean up
+            canvas.width = 0
+            canvas.height = 0
+
+            resolve(dataUrl)
+        } catch (error) {
+            reject(error)
+        }
+    })
 }
 
 /**
