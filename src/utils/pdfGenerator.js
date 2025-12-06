@@ -3,6 +3,7 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts'
 import { formatDateForDisplay, formatTimeForDisplay, getFullName } from './validators'
 import { getPredictions } from './predictionEngine'
 import { generateChartImage } from './chartImageGenerator'
+import { pdfText } from './pdfBilingualText'
 
 // Initialize pdfMake with fonts
 if (pdfFonts && pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
@@ -74,6 +75,9 @@ export async function generatePDF(kundaliData, formData) {
     const dateStr = formatDateForDisplay(formData.dateOfBirth)
     const timeStr = formatTimeForDisplay(formData.timeOfBirth)
 
+    // Get language preference from formData
+    const isHindi = formData.pdfLanguage === 'hindi'
+
     // Format coordinates
     const lat = formData.location.lat
     const lon = formData.location.lon
@@ -119,52 +123,52 @@ export async function generatePDF(kundaliData, formData) {
 
         content: [
             // Cover Page
-            ...generateCoverPage(fullName, dateStr, timeStr, locationStr, settings),
+            ...generateCoverPage(fullName, dateStr, timeStr, locationStr, settings, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Table of Contents
-            ...generateTableOfContents(),
+            ...generateTableOfContents(isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Main Details Section
-            ...generateMainDetails(kundaliData, formData, dateStr, timeStr, locationStr),
+            ...generateMainDetails(kundaliData, formData, dateStr, timeStr, locationStr, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Planetary Positions
-            ...generatePlanetaryPositions(kundaliData),
+            ...generatePlanetaryPositions(kundaliData, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Kundali Charts
-            ...(await generateKundaliCharts(kundaliData)),
+            ...(await generateKundaliCharts(kundaliData, isHindi)),
 
             { text: '', pageBreak: 'after' },
 
             // Key Points
-            ...generateKeyPoints(kundaliData),
+            ...generateKeyPoints(kundaliData, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Predictions
-            ...generatePredictions(predictions),
+            ...generatePredictions(predictions, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Dashas
-            ...generateDashas(kundaliData),
+            ...generateDashas(kundaliData, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Yogas and Doshas
-            ...generateYogasAndDoshas(kundaliData),
+            ...generateYogasAndDoshas(kundaliData, isHindi),
 
             { text: '', pageBreak: 'after' },
 
             // Remedies
-            ...generateRemedies(kundaliData),
+            ...generateRemedies(kundaliData, isHindi),
         ],
 
         styles: {
@@ -235,11 +239,11 @@ export async function generatePDF(kundaliData, formData) {
     })
 }
 
-function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
+function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings, isHindi) {
     return [
         { text: 'OM', fontSize: 48, alignment: 'center', margin: [0, 40, 0, 20], color: '#f97316', fontWeight: 'bold' },
-        { text: 'Vedic Kundali', style: 'coverTitle' },
-        { text: 'Horoscope Report', style: 'coverSubtitle' },
+        { text: pdfText.coverTitle(isHindi), style: 'coverTitle' },
+        { text: pdfText.coverSubtitle(isHindi), style: 'coverSubtitle' },
 
         {
             canvas: [
@@ -296,20 +300,20 @@ function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
     ]
 }
 
-function generateTableOfContents() {
+function generateTableOfContents(isHindi) {
     const sections = [
-        { title: 'Main Details', page: 3 },
-        { title: 'Planetary Positions', page: 4 },
-        { title: 'Kundali Charts', page: 5 },
-        { title: 'Key Points', page: 6 },
-        { title: 'Detailed Predictions', page: 7 },
-        { title: 'Vimshottari Dasha', page: 8 },
-        { title: 'Yogas and Doshas', page: 9 },
-        { title: 'Remedies', page: 10 },
+        { title: pdfText.sections.mainDetails(isHindi), page: 3 },
+        { title: pdfText.sections.planetaryPositions(isHindi), page: 4 },
+        { title: pdfText.sections.kundaliCharts(isHindi), page: 5 },
+        { title: pdfText.sections.keyPoints(isHindi), page: 6 },
+        { title: pdfText.sections.predictions(isHindi), page: 7 },
+        { title: pdfText.sections.dashas(isHindi), page: 8 },
+        { title: pdfText.sections.yogas(isHindi), page: 9 },
+        { title: pdfText.sections.remedies(isHindi), page: 10 },
     ]
 
     return [
-        { text: 'Table of Contents', style: 'coverTitle', margin: [0, 40, 0, 30] },
+        { text: pdfText.tableOfContents(isHindi), style: 'coverTitle', margin: [0, 40, 0, 30] },
 
         {
             table: {
@@ -334,11 +338,11 @@ function generateTableOfContents() {
     ]
 }
 
-function generateMainDetails(kundaliData, formData, dateStr, timeStr, locationStr) {
+function generateMainDetails(kundaliData, formData, dateStr, timeStr, locationStr, isHindi) {
     const fullName = getFullName(formData)
 
     return [
-        { text: 'Main Details', style: 'sectionTitle' },
+        { text: pdfText.sections.mainDetails(isHindi), style: 'sectionTitle' },
 
         {
             table: {
@@ -369,23 +373,23 @@ function generateMainDetails(kundaliData, formData, dateStr, timeStr, locationSt
     ]
 }
 
-function generatePlanetaryPositions(kundaliData) {
+function generatePlanetaryPositions(kundaliData, isHindi) {
     const planets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
 
     return [
-        { text: 'Planetary Positions', style: 'sectionTitle' },
+        { text: pdfText.sections.planetaryPositions(isHindi), style: 'sectionTitle' },
 
         {
             table: {
                 widths: ['15%', '20%', '15%', '15%', '15%', '20%'],
                 body: [
                     [
-                        { text: 'Planet', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Sign', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Degree', style: 'tableHeader', alignment: 'center' },
-                        { text: 'House', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Nakshatra', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Pada', style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.planet(isHindi), style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.sign(isHindi), style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.degree(isHindi), style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.house(isHindi), style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.nakshatra(isHindi), style: 'tableHeader', alignment: 'center' },
+                        { text: pdfText.pada(isHindi), style: 'tableHeader', alignment: 'center' },
                     ],
                     ...planets.map(planet => {
                         const planetData = kundaliData.planets[planet]
@@ -409,32 +413,32 @@ function generatePlanetaryPositions(kundaliData) {
     ]
 }
 
-async function generateKundaliCharts(kundaliData) {
+async function generateKundaliCharts(kundaliData, isHindi) {
     // Generate chart images
     const lagnaChartImage = await generateChartImage(kundaliData, 'lagna')
     const navamshaChartImage = await generateChartImage(kundaliData, 'navamsha')
     const chalitChartImage = await generateChartImage(kundaliData, 'chalit')
 
     return [
-        { text: 'Kundali Charts', style: 'sectionTitle' },
+        { text: pdfText.sections.kundaliCharts(isHindi), style: 'sectionTitle' },
 
-        { text: 'Lagna Kundali (D1)', style: 'subsectionTitle' },
+        { text: pdfText.lagnaChart(isHindi), style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: lagnaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
-        { text: 'Navamsha Kundali (D9)', style: 'subsectionTitle' },
+        { text: pdfText.navamshaChart(isHindi), style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: navamshaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
-        { text: 'Chalit Chakra', style: 'subsectionTitle' },
+        { text: pdfText.chalitChart(isHindi), style: 'subsectionTitle' },
         { text: '[Bhava Chalit Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: chalitChartImage, width: 300, alignment: 'center' },
     ]
 }
 
-function generateKeyPoints(kundaliData) {
+function generateKeyPoints(kundaliData, isHindi) {
     return [
-        { text: 'Key Points of Your Kundali', style: 'sectionTitle' },
+        { text: pdfText.sections.keyPoints(isHindi), style: 'sectionTitle' },
 
         {
             ul: [
@@ -454,9 +458,9 @@ function generateKeyPoints(kundaliData) {
     ]
 }
 
-function generatePredictions(predictions) {
+function generatePredictions(predictions, isHindi) {
     return [
-        { text: 'Detailed Predictions', style: 'sectionTitle' },
+        { text: pdfText.sections.predictions(isHindi), style: 'sectionTitle' },
 
         { text: 'Lagna (Ascendant) Report', style: 'subsectionTitle' },
         { text: predictions.lagna, margin: [0, 0, 0, 15], alignment: 'justify' },
@@ -472,9 +476,9 @@ function generatePredictions(predictions) {
     ]
 }
 
-function generateDashas(kundaliData) {
+function generateDashas(kundaliData, isHindi) {
     return [
-        { text: 'Vimshottari Dasha System', style: 'sectionTitle' },
+        { text: pdfText.sections.dashas(isHindi), style: 'sectionTitle' },
 
         { text: `Current Mahadasha: ${kundaliData.currentDasha.planet}`, style: 'subsectionTitle' },
         { text: `Balance: ${kundaliData.currentDasha.balance.years} Years, ${kundaliData.currentDasha.balance.months} Months, ${kundaliData.currentDasha.balance.days} Days`, margin: [0, 0, 0, 20] },
@@ -506,25 +510,25 @@ function generateDashas(kundaliData) {
     ]
 }
 
-function generateYogasAndDoshas(kundaliData) {
+function generateYogasAndDoshas(kundaliData, isHindi) {
     return [
-        { text: 'Yogas and Doshas', style: 'sectionTitle' },
+        { text: pdfText.sections.yogas(isHindi), style: 'sectionTitle' },
 
-        { text: 'Beneficial Yogas', style: 'subsectionTitle' },
+        { text: pdfText.beneficialYogas(isHindi), style: 'subsectionTitle' },
         {
             ul: kundaliData.yogas.length > 0 ? kundaliData.yogas : ['No major yogas detected'],
             margin: [20, 0, 0, 20]
         },
 
-        { text: 'Doshas', style: 'subsectionTitle' },
+        { text: pdfText.doshas(isHindi), style: 'subsectionTitle' },
         {
             table: {
                 widths: ['40%', '60%'],
                 body: [
                     [{ text: 'Dosha', style: 'tableHeader' }, { text: 'Status', style: 'tableHeader' }],
-                    ['Mangal Dosha', kundaliData.doshas.mangal ? 'Present - Remedies recommended' : 'Not Present'],
-                    ['Kaal Sarp Dosha', kundaliData.doshas.kaalSarp ? 'Present - Remedies recommended' : 'Not Present'],
-                    ['Sade Sati', kundaliData.doshas.sadeSati ? 'Active - Current phase' : 'Not Active'],
+                    [pdfText.mangalDosha(isHindi), kundaliData.doshas.mangal ? 'Present - Remedies recommended' : 'Not Present'],
+                    [pdfText.kaalSarpDosha(isHindi), kundaliData.doshas.kaalSarp ? 'Present - Remedies recommended' : 'Not Present'],
+                    [pdfText.sadeSati(isHindi), kundaliData.doshas.sadeSati ? 'Active - Current phase' : 'Not Active'],
                 ]
             },
             layout: {
@@ -536,11 +540,11 @@ function generateYogasAndDoshas(kundaliData) {
     ]
 }
 
-function generateRemedies(kundaliData) {
+function generateRemedies(kundaliData, isHindi) {
     return [
-        { text: 'Remedies and Recommendations', style: 'sectionTitle' },
+        { text: pdfText.sections.remedies(isHindi), style: 'sectionTitle' },
 
-        { text: 'General Remedies', style: 'subsectionTitle' },
+        { text: pdfText.generalRemedies(isHindi), style: 'subsectionTitle' },
         {
             ul: [
                 'Recite mantras of your ruling planet daily',
@@ -552,10 +556,10 @@ function generateRemedies(kundaliData) {
             margin: [20, 0, 0, 20]
         },
 
-        { text: 'Recommended Gemstones', style: 'subsectionTitle' },
+        { text: pdfText.gemstones(isHindi), style: 'subsectionTitle' },
         { text: `For ${kundaliData.ascendant.sign} Ascendant: ${getRecommendedGemstone(kundaliData.ascendant.sign)}`, margin: [0, 0, 0, 20] },
 
-        { text: 'Lucky Days and Colors', style: 'subsectionTitle' },
+        { text: pdfText.luckyDaysColors(isHindi), style: 'subsectionTitle' },
         {
             table: {
                 widths: ['50%', '50%'],
