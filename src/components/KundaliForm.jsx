@@ -10,6 +10,7 @@ export default function KundaliForm({ onSubmit }) {
         dateOfBirth: '',
         timeOfBirth: '',
         location: null,
+        pdfLanguage: 'english', // 'english' or 'hindi'
     })
 
     const [errors, setErrors] = useState({})
@@ -167,6 +168,48 @@ export default function KundaliForm({ onSubmit }) {
                                 </p>
                             </div>
                         )}
+                    </div>
+
+                    {/* PDF Language Selection */}
+                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-lg p-5">
+                        <label className="label flex items-center mb-3">
+                            <svg className="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                            </svg>
+                            PDF Report Language
+                        </label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <label className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${formData.pdfLanguage === 'english' ? 'border-orange-500 bg-white shadow-md' : 'border-gray-300 hover:border-orange-300'}`}>
+                                <input
+                                    type="radio"
+                                    name="pdfLanguage"
+                                    value="english"
+                                    checked={formData.pdfLanguage === 'english'}
+                                    onChange={handleInputChange}
+                                    className="sr-only"
+                                />
+                                <div className="text-center">
+                                    <div className="text-2xl mb-2">🇬🇧</div>
+                                    <div className="font-semibold text-gray-800">English</div>
+                                    <div className="text-xs text-gray-600 mt-1">All text in English</div>
+                                </div>
+                            </label>
+                            <label className={`cursor-pointer border-2 rounded-lg p-4 transition-all ${formData.pdfLanguage === 'hindi' ? 'border-orange-500 bg-white shadow-md' : 'border-gray-300 hover:border-orange-300'}`}>
+                                <input
+                                    type="radio"
+                                    name="pdfLanguage"
+                                    value="hindi"
+                                    checked={formData.pdfLanguage === 'hindi'}
+                                    onChange={handleInputChange}
+                                    className="sr-only"
+                                />
+                                <div className="text-center">
+                                    <div className="text-2xl mb-2">🇮🇳</div>
+                                    <div className="font-semibold text-gray-800">हिंदी</div>
+                                    <div className="text-xs text-gray-600 mt-1">Hindi + English</div>
+                                </div>
+                            </label>
+                        </div>
                     </div>
 
                     {/* Submit Button */}
