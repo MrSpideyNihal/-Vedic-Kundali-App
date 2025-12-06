@@ -31,6 +31,7 @@ function getSettings() {
         email: '',
         phone: '',
         address: '',
+        pdfLanguage: 'english',
         softwareName: 'Rodge Astro Software',
         developer: 'Nihal Rodge',
         copyrightYear: new Date().getFullYear(),
