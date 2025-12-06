@@ -2,7 +2,7 @@ import pdfMake from 'pdfmake/build/pdfmake'
 import * as pdfFonts from 'pdfmake/build/vfs_fonts'
 import { formatDateForDisplay, formatTimeForDisplay, getFullName } from './validators'
 import { getPredictions } from './predictionEngine'
-import { drawKundaliChart, drawNavamshaChart, drawChalitChart } from './chartRenderer'
+import { generateChartImage } from './chartImageGenerator'
 
 // Initialize pdfMake with fonts
 if (pdfFonts && pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
@@ -138,7 +138,7 @@ export async function generatePDF(kundaliData, formData) {
             { text: '', pageBreak: 'after' },
 
             // Kundali Charts
-            ...generateKundaliCharts(kundaliData),
+            ...(await generateKundaliCharts(kundaliData)),
 
             { text: '', pageBreak: 'after' },
 
@@ -411,22 +411,27 @@ function generatePlanetaryPositions(kundaliData) {
     ]
 }
 
-function generateKundaliCharts(kundaliData) {
+async function generateKundaliCharts(kundaliData) {
+    // Generate chart images
+    const lagnaChartImage = await generateChartImage(kundaliData, 'lagna')
+    const navamshaChartImage = await generateChartImage(kundaliData, 'navamsha')
+    const chalitChartImage = await generateChartImage(kundaliData, 'chalit')
+
     return [
         { text: 'कुंडली चक्र', style: 'sectionTitle' },
         { text: 'Kundali Charts', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
 
         { text: 'Lagna Kundali (D1) / लग्न कुंडली', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawKundaliChart(kundaliData), fontSize: 8, margin: [0, 0, 0, 30], preserveLeadingSpaces: true },
+        { image: lagnaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
         { text: 'Navamsha Kundali (D9) / नवांश कुंडली', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawNavamshaChart(kundaliData), fontSize: 8, margin: [0, 0, 0, 30], preserveLeadingSpaces: true },
+        { image: navamshaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
         { text: 'Chalit Chakra / चलित चक्र', style: 'subsectionTitle' },
         { text: '[Bhava Chalit Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
-        { text: drawChalitChart(kundaliData), fontSize: 8, preserveLeadingSpaces: true },
+        { image: chalitChartImage, width: 300, alignment: 'center' },
     ]
 }
 
@@ -649,4 +654,3 @@ function getLuckyNumber(sign) {
     }
     return numbers[sign] || '1'
 }
- 
