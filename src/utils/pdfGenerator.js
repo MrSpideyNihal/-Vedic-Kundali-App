@@ -236,9 +236,9 @@ export async function generatePDF(kundaliData, formData) {
 
 function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
     return [
-        { text: '🕉️', fontSize: 48, alignment: 'center', margin: [0, 40, 0, 20] },
-        { text: 'वैदिक कुंडली', style: 'coverTitle' },
-        { text: 'Vedic Kundali', style: 'coverSubtitle' },
+        { text: 'OM', fontSize: 48, alignment: 'center', margin: [0, 40, 0, 20], color: '#f97316', fontWeight: 'bold' },
+        { text: 'Vedic Kundali', style: 'coverTitle' },
+        { text: 'Horoscope Report', style: 'coverSubtitle' },
 
         {
             canvas: [
@@ -297,19 +297,18 @@ function generateCoverPage(fullName, dateStr, timeStr, locationStr, settings) {
 
 function generateTableOfContents() {
     const sections = [
-        { title: 'मुख्य विवरण', page: 3 },
-        { title: 'ग्रह स्थिति', page: 4 },
-        { title: 'कुंडली चक्र', page: 5 },
-        { title: 'आपकी कुंडली के प्रमुख बिंदु', page: 6 },
-        { title: 'विस्तृत भविष्यफल', page: 7 },
-        { title: 'विम्शोत्तरी दशा', page: 8 },
-        { title: 'योग एवं दोष', page: 9 },
-        { title: 'उपाय', page: 10 },
+        { title: 'Main Details', page: 3 },
+        { title: 'Planetary Positions', page: 4 },
+        { title: 'Kundali Charts', page: 5 },
+        { title: 'Key Points', page: 6 },
+        { title: 'Detailed Predictions', page: 7 },
+        { title: 'Vimshottari Dasha', page: 8 },
+        { title: 'Yogas and Doshas', page: 9 },
+        { title: 'Remedies', page: 10 },
     ]
 
     return [
-        { text: 'विषय सूची', style: 'coverTitle', margin: [0, 40, 0, 30] },
-        { text: 'Table of Contents', style: 'coverSubtitle', margin: [0, 0, 0, 30] },
+        { text: 'Table of Contents', style: 'coverTitle', margin: [0, 40, 0, 30] },
 
         {
             table: {
@@ -338,14 +337,13 @@ function generateMainDetails(kundaliData, formData, dateStr, timeStr, locationSt
     const fullName = getFullName(formData)
 
     return [
-        { text: 'मुख्य विवरण', style: 'sectionTitle' },
-        { text: 'Main Details', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Main Details', style: 'sectionTitle' },
 
         {
             table: {
                 widths: ['40%', '60%'],
                 body: [
-                    [{ text: 'Name / नाम', style: 'tableHeader' }, { text: 'Details / विवरण', style: 'tableHeader' }],
+                    [{ text: 'Name', style: 'tableHeader' }, { text: 'Details', style: 'tableHeader' }],
                     ['Full Name', fullName],
                     ['Date of Birth', dateStr],
                     ['Time of Birth', timeStr],
@@ -374,20 +372,19 @@ function generatePlanetaryPositions(kundaliData) {
     const planets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
 
     return [
-        { text: 'ग्रह स्थिति', style: 'sectionTitle' },
-        { text: 'Planetary Positions', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Planetary Positions', style: 'sectionTitle' },
 
         {
             table: {
                 widths: ['15%', '20%', '15%', '15%', '15%', '20%'],
                 body: [
                     [
-                        { text: 'Planet\nग्रह', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Sign\nराशि', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Degree\nअंश', style: 'tableHeader', alignment: 'center' },
-                        { text: 'House\nभाव', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Nakshatra\nनक्षत्र', style: 'tableHeader', alignment: 'center' },
-                        { text: 'Pada\nपाद', style: 'tableHeader', alignment: 'center' },
+                        { text: 'Planet', style: 'tableHeader', alignment: 'center' },
+                        { text: 'Sign', style: 'tableHeader', alignment: 'center' },
+                        { text: 'Degree', style: 'tableHeader', alignment: 'center' },
+                        { text: 'House', style: 'tableHeader', alignment: 'center' },
+                        { text: 'Nakshatra', style: 'tableHeader', alignment: 'center' },
+                        { text: 'Pada', style: 'tableHeader', alignment: 'center' },
                     ],
                     ...planets.map(planet => {
                         const planetData = kundaliData.planets[planet]
@@ -418,18 +415,17 @@ async function generateKundaliCharts(kundaliData) {
     const chalitChartImage = await generateChartImage(kundaliData, 'chalit')
 
     return [
-        { text: 'कुंडली चक्र', style: 'sectionTitle' },
-        { text: 'Kundali Charts', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Kundali Charts', style: 'sectionTitle' },
 
-        { text: 'Lagna Kundali (D1) / लग्न कुंडली', style: 'subsectionTitle' },
+        { text: 'Lagna Kundali (D1)', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: lagnaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
-        { text: 'Navamsha Kundali (D9) / नवांश कुंडली', style: 'subsectionTitle' },
+        { text: 'Navamsha Kundali (D9)', style: 'subsectionTitle' },
         { text: '[North Indian Style Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: navamshaChartImage, width: 300, alignment: 'center', margin: [0, 0, 0, 30] },
 
-        { text: 'Chalit Chakra / चलित चक्र', style: 'subsectionTitle' },
+        { text: 'Chalit Chakra', style: 'subsectionTitle' },
         { text: '[Bhava Chalit Chart]', fontSize: 9, color: '#666', margin: [0, 0, 0, 10] },
         { image: chalitChartImage, width: 300, alignment: 'center' },
     ]
@@ -437,8 +433,7 @@ async function generateKundaliCharts(kundaliData) {
 
 function generateKeyPoints(kundaliData) {
     return [
-        { text: 'आपकी कुंडली के प्रमुख बिंदु', style: 'sectionTitle' },
-        { text: 'Key Points of Your Kundali', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Key Points of Your Kundali', style: 'sectionTitle' },
 
         {
             ul: [
@@ -460,8 +455,7 @@ function generateKeyPoints(kundaliData) {
 
 function generatePredictions(predictions) {
     return [
-        { text: 'विस्तृत भविष्यफल', style: 'sectionTitle' },
-        { text: 'Detailed Predictions', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Detailed Predictions', style: 'sectionTitle' },
 
         { text: 'Lagna (Ascendant) Report', style: 'subsectionTitle' },
         { text: predictions.lagna, margin: [0, 0, 0, 15], alignment: 'justify' },
@@ -479,8 +473,7 @@ function generatePredictions(predictions) {
 
 function generateDashas(kundaliData) {
     return [
-        { text: 'विम्शोत्तरी दशा', style: 'sectionTitle' },
-        { text: 'Vimshottari Dasha System', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Vimshottari Dasha System', style: 'sectionTitle' },
 
         { text: `Current Mahadasha: ${kundaliData.currentDasha.planet}`, style: 'subsectionTitle' },
         { text: `Balance: ${kundaliData.currentDasha.balance.years} Years, ${kundaliData.currentDasha.balance.months} Months, ${kundaliData.currentDasha.balance.days} Days`, margin: [0, 0, 0, 20] },
@@ -514,24 +507,23 @@ function generateDashas(kundaliData) {
 
 function generateYogasAndDoshas(kundaliData) {
     return [
-        { text: 'योग एवं दोष', style: 'sectionTitle' },
-        { text: 'Yogas and Doshas', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Yogas and Doshas', style: 'sectionTitle' },
 
-        { text: 'Beneficial Yogas / लाभकारी योग', style: 'subsectionTitle' },
+        { text: 'Beneficial Yogas', style: 'subsectionTitle' },
         {
             ul: kundaliData.yogas.length > 0 ? kundaliData.yogas : ['No major yogas detected'],
             margin: [20, 0, 0, 20]
         },
 
-        { text: 'Doshas / दोष', style: 'subsectionTitle' },
+        { text: 'Doshas', style: 'subsectionTitle' },
         {
             table: {
                 widths: ['40%', '60%'],
                 body: [
                     [{ text: 'Dosha', style: 'tableHeader' }, { text: 'Status', style: 'tableHeader' }],
-                    ['Mangal Dosha (मांगलिक दोष)', kundaliData.doshas.mangal ? 'Present - Remedies recommended' : 'Not Present'],
-                    ['Kaal Sarp Dosha (कालसर्प दोष)', kundaliData.doshas.kaalSarp ? 'Present - Remedies recommended' : 'Not Present'],
-                    ['Sade Sati (साढ़े साती)', kundaliData.doshas.sadeSati ? 'Active - Current phase' : 'Not Active'],
+                    ['Mangal Dosha', kundaliData.doshas.mangal ? 'Present - Remedies recommended' : 'Not Present'],
+                    ['Kaal Sarp Dosha', kundaliData.doshas.kaalSarp ? 'Present - Remedies recommended' : 'Not Present'],
+                    ['Sade Sati', kundaliData.doshas.sadeSati ? 'Active - Current phase' : 'Not Active'],
                 ]
             },
             layout: {
@@ -545,10 +537,9 @@ function generateYogasAndDoshas(kundaliData) {
 
 function generateRemedies(kundaliData) {
     return [
-        { text: 'उपाय', style: 'sectionTitle' },
-        { text: 'Remedies and Recommendations', fontSize: 12, color: '#666', margin: [0, 0, 0, 20] },
+        { text: 'Remedies and Recommendations', style: 'sectionTitle' },
 
-        { text: 'General Remedies / सामान्य उपाय', style: 'subsectionTitle' },
+        { text: 'General Remedies', style: 'subsectionTitle' },
         {
             ul: [
                 'Recite mantras of your ruling planet daily',
@@ -560,10 +551,10 @@ function generateRemedies(kundaliData) {
             margin: [20, 0, 0, 20]
         },
 
-        { text: 'Recommended Gemstones / रत्न', style: 'subsectionTitle' },
+        { text: 'Recommended Gemstones', style: 'subsectionTitle' },
         { text: `For ${kundaliData.ascendant.sign} Ascendant: ${getRecommendedGemstone(kundaliData.ascendant.sign)}`, margin: [0, 0, 0, 20] },
 
-        { text: 'Lucky Days and Colors / शुभ दिन और रंग', style: 'subsectionTitle' },
+        { text: 'Lucky Days and Colors', style: 'subsectionTitle' },
         {
             table: {
                 widths: ['50%', '50%'],
