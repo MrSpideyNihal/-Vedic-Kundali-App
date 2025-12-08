@@ -9,29 +9,38 @@ export const testBirthData = {
     timeOfBirth: '09:33:00',
     location: {
         name: 'Chandrapur, Maharashtra, India',
-        lat: 19.95,
-        lon: 79.30,
+        lat: 19.95, // 19:57 N from PDF
+        lon: 79.30, // 79:18 E from PDF
         city: 'Chandrapur',
         state: 'Maharashtra',
         country: 'India',
-        timezone: 5.5
+        timezone: 5.5 // IST
     }
 }
 
-// Expected results for verification
+// Expected results for verification (from actual PDF)
 export const expectedResults = {
     ascendant: {
         sign: 'Cancer',
-        approximateDegree: 0.34 // This will vary slightly based on exact time
+        nakshatra: 'Punarvasu',
+        pada: 4
     },
     moonSign: {
-        sign: 'Taurus'
+        sign: 'Virgo', // Corrected from Taurus
+        nakshatra: 'Chitra' // Corrected from Krittika
     },
     sunSign: {
-        sign: 'Taurus'
+        sign: 'Taurus',
+        nakshatra: 'Krittika'
     },
-    nakshatra: {
-        name: 'Krittika',
-        pada: 3
+    // Additional planetary positions from PDF
+    planets: {
+        Mars: { sign: 'Pisces', nakshatra: 'Revati' },
+        Mercury: { sign: 'Aries', nakshatra: 'Ashwini' },
+        Jupiter: { sign: 'Taurus', nakshatra: 'Krittika' },
+        Venus: { sign: 'Taurus', nakshatra: 'Krittika' },
+        Saturn: { sign: 'Aquarius', nakshatra: 'Purva Bhadrapada' },
+        Rahu: { sign: 'Pisces', nakshatra: 'Revati' },
+        Ketu: { sign: 'Virgo', nakshatra: 'Hasta' }
     }
 }
