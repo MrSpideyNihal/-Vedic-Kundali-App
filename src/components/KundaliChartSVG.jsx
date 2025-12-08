@@ -26,11 +26,21 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         // Add ascendant to first house
         houses[0].push('ल')
     } else if (chartType === 'navamsha') {
-        // Navamsha chart - simplified calculation
+        // Navamsha chart - use proper backend navamsha calculations
         Object.entries(kundaliData.planets).forEach(([planet, data]) => {
-            const navamshaHouse = calculateNavamshaHouse(data.degree, data.sign)
-            houses[navamshaHouse].push(PLANET_SYMBOLS[planet])
+            if (data.navamsha && data.navamsha.longitude !== undefined) {
+                // Calculate which house this planet is in relative to Navamsha ascendant
+                const navamshaAscLong = kundaliData.navamshaAscendant?.longitude || 0
+                let diff = data.navamsha.longitude - navamshaAscLong
+                if (diff < 0) diff += 360
+                const houseIndex = Math.floor(diff / 30)
+                houses[houseIndex].push(PLANET_SYMBOLS[planet])
+            }
         })
+        // Add ascendant marker to first house of D9
+        if (kundaliData.navamshaAscendant) {
+            houses[0].push('ल')
+        }
     }
 
     // Rectangular chart dimensions
@@ -126,13 +136,4 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
             })}
         </svg>
     )
-}
-
-function calculateNavamshaHouse(degree, sign) {
-    const signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
-        'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-    const signIndex = signs.indexOf(sign)
-    const navamshaIndex = Math.floor(degree / 3.333333)
-    const navamshaSign = (signIndex * 9 + navamshaIndex) % 12
-    return navamshaSign
 }
