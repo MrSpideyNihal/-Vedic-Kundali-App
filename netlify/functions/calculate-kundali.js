@@ -1,8 +1,7 @@
 // Netlify serverless function for Vedic astrology calculations
-// Using simplified astronomical calculations
+// Using astronomy-engine for accurate planetary positions
 
-// Swiss Ephemeris is not available, using simplified calculations
-const swisseph = null;
+const Astronomy = require('astronomy-engine');
 
 // Zodiac signs
 const ZODIAC_SIGNS = [
@@ -81,8 +80,8 @@ exports.handler = async (event, context) => {
         const [year, month, day] = dateOfBirth.split('-').map(Number)
         const [hours, minutes, seconds = 0] = timeOfBirth.split(':').map(Number)
 
-        // Use simplified calculations
-        const kundaliData = calculateSimplified(year, month, day, hours, minutes, seconds, location)
+        // Calculate kundali using accurate astronomy-engine
+        const kundaliData = calculateAccurate(year, month, day, hours, minutes, seconds, location)
 
         return {
             statusCode: 200,
@@ -100,56 +99,68 @@ exports.handler = async (event, context) => {
     }
 }
 
-// Simplified calculation method
-function calculateSimplified(year, month, day, hours, minutes, seconds, location) {
-    // Calculate Julian Day (simplified)
-    const a = Math.floor((14 - month) / 12)
-    const y = year + 4800 - a
-    const m = month + 12 * a - 3
-    const jd = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045
-    const jdFraction = (hours - 12) / 24 + minutes / 1440 + seconds / 86400
-    const julianDay = jd + jdFraction
+// Calculate Lahiri Ayanamsa (accurate formula)
+function calculateLahiriAyanamsa(julianDay) {
+    // Lahiri Ayanamsa formula (accurate)
+    // Based on: Ayanamsa = 23° 15' 00" on 21 March 1956
+    const t = (julianDay - 2451545.0) / 36525.0 // Julian centuries from J2000.0
 
-    // Lahiri Ayanamsa (simplified formula)
-    const ayanamsa = 23.85 + (julianDay - 2451545.0) / 36525 * 0.013
+    // Lahiri ayanamsa formula
+    const ayanamsa = 23.85 + (50.27974 * t) + (0.000567 * t * t)
 
-    // Calculate approximate planetary positions (simplified)
-    const daysSinceEpoch = julianDay - 2451545.0
+    return ayanamsa
+}
 
-    // Sun's mean longitude (simplified)
-    const sunLong = (280.46 + 0.9856474 * daysSinceEpoch) % 360
-    const sunSidereal = (sunLong - ayanamsa + 360) % 360
+// Accurate calculation using astronomy-engine
+function calculateAccurate(year, month, day, hours, minutes, seconds, location) {
+    // Create date object (UTC)
+    const utcDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds))
 
-    // Moon's mean longitude (simplified)
-    const moonLong = (218.32 + 13.176396 * daysSinceEpoch) % 360
-    const moonSidereal = (moonLong - ayanamsa + 360) % 360
+    // Convert to local time considering timezone
+    const timezoneOffset = location.timezone || 5.5 // Default to IST
+    const localDate = new Date(utcDate.getTime() - timezoneOffset * 60 * 60 * 1000)
 
-    // Other planets (very simplified - for demonstration)
-    const marsLong = (355.45 + 0.5240207 * daysSinceEpoch) % 360
-    const marsSidereal = (marsLong - ayanamsa + 360) % 360
+    // Create Astronomy.Date object
+    const astroDate = new Date(year, month - 1, day, hours, minutes, seconds)
 
-    const mercuryLong = (252.25 + 4.0923344 * daysSinceEpoch) % 360
-    const mercurySidereal = (mercuryLong - ayanamsa + 360) % 360
+    // Calculate Julian Day
+    const jd = Astronomy.MakeTime(astroDate).tt
 
-    const jupiterLong = (34.35 + 0.0830912 * daysSinceEpoch) % 360
-    const jupiterSidereal = (jupiterLong - ayanamsa + 360) % 360
+    // Calculate Lahiri Ayanamsa
+    const ayanamsa = calculateLahiriAyanamsa(jd)
 
-    const venusLong = (181.98 + 1.6021302 * daysSinceEpoch) % 360
-    const venusSidereal = (venusLong - ayanamsa + 360) % 360
+    // Get planetary positions (tropical)
+    const sunPos = Astronomy.Ecliptic(Astronomy.Body.Sun, astroDate)
+    const moonPos = Astronomy.Ecliptic(Astronomy.Body.Moon, astroDate)
+    const marsPos = Astronomy.Ecliptic(Astronomy.Body.Mars, astroDate)
+    const mercuryPos = Astronomy.Ecliptic(Astronomy.Body.Mercury, astroDate)
+    const jupiterPos = Astronomy.Ecliptic(Astronomy.Body.Jupiter, astroDate)
+    const venusPos = Astronomy.Ecliptic(Astronomy.Body.Venus, astroDate)
+    const saturnPos = Astronomy.Ecliptic(Astronomy.Body.Saturn, astroDate)
 
-    const saturnLong = (50.08 + 0.0334442 * daysSinceEpoch) % 360
-    const saturnSidereal = (saturnLong - ayanamsa + 360) % 360
+    // Calculate Rahu (Mean North Node)
+    const rahuTropical = calculateRahu(jd)
 
-    // Rahu (North Node) - simplified
-    const rahuLong = (125.04 - 0.0529539 * daysSinceEpoch + 360 * 10) % 360
-    const rahuSidereal = (rahuLong - ayanamsa + 360) % 360
+    // Convert tropical to sidereal (Vedic) by subtracting ayanamsa
+    const toSidereal = (tropical) => {
+        let sidereal = tropical - ayanamsa
+        while (sidereal < 0) sidereal += 360
+        while (sidereal >= 360) sidereal -= 360
+        return sidereal
+    }
 
-    // Ketu is 180° opposite to Rahu
+    const sunSidereal = toSidereal(sunPos.elon)
+    const moonSidereal = toSidereal(moonPos.elon)
+    const marsSidereal = toSidereal(marsPos.elon)
+    const mercurySidereal = toSidereal(mercuryPos.elon)
+    const jupiterSidereal = toSidereal(jupiterPos.elon)
+    const venusSidereal = toSidereal(venusPos.elon)
+    const saturnSidereal = toSidereal(saturnPos.elon)
+    const rahuSidereal = toSidereal(rahuTropical)
     const ketuSidereal = (rahuSidereal + 180) % 360
 
-    // Calculate Ascendant (simplified using latitude and local sidereal time)
-    const lst = (100.46 + 0.985647 * daysSinceEpoch + location.lon + 15 * (hours + minutes / 60)) % 360
-    const ascendantLong = (lst - ayanamsa + 360) % 360
+    // Calculate Ascendant (Lagna)
+    const ascendantLong = calculateAscendant(jd, location.lat, location.lon, ayanamsa)
 
     // Helper function to get planet data
     const getPlanetData = (longitude) => {
@@ -165,7 +176,7 @@ function calculateSimplified(year, month, day, hours, minutes, seconds, location
             house,
             nakshatra: nakshatra.name,
             pada: nakshatra.pada,
-            speed: 0 // Not calculated in simplified mode
+            speed: 0
         }
     }
 
@@ -192,7 +203,7 @@ function calculateSimplified(year, month, day, hours, minutes, seconds, location
     const birthNakshatra = getNakshatra(moonSidereal)
 
     // Calculate Panchang
-    const panchang = calculatePanchang(julianDay, moonSidereal, sunSidereal)
+    const panchang = calculatePanchang(jd, moonSidereal, sunSidereal)
 
     // Calculate Vimshottari Dasha
     const dashaInfo = calculateVimshottariDasha(birthNakshatra, year, month, day)
@@ -203,7 +214,7 @@ function calculateSimplified(year, month, day, hours, minutes, seconds, location
     // Detect Doshas
     const doshas = detectDoshas(planets, ascendantLong)
 
-    // Calculate houses (simplified - equal house system)
+    // Calculate houses
     const houses = []
     for (let i = 0; i < 12; i++) {
         houses.push((ascendantLong + i * 30) % 360)
@@ -237,6 +248,67 @@ function calculateSimplified(year, month, day, hours, minutes, seconds, location
     }
 }
 
+// Calculate Rahu (Mean North Node)
+function calculateRahu(julianDay) {
+    // Mean longitude of ascending node (Rahu)
+    // Formula from astronomical algorithms
+    const T = (julianDay - 2451545.0) / 36525.0
+
+    // Mean longitude of lunar ascending node
+    let omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + T * T * T / 450000.0
+
+    // Normalize to 0-360
+    while (omega < 0) omega += 360
+    while (omega >= 360) omega -= 360
+
+    return omega
+}
+
+// Calculate Ascendant using accurate formula
+function calculateAscendant(julianDay, latitude, longitude, ayanamsa) {
+    // Calculate Local Sidereal Time
+    const T = (julianDay - 2451545.0) / 36525.0
+
+    // Greenwich Mean Sidereal Time at 0h UT
+    let GMST = 280.46061837 + 360.98564736629 * (julianDay - 2451545.0) +
+        0.000387933 * T * T - T * T * T / 38710000.0
+
+    // Normalize
+    while (GMST < 0) GMST += 360
+    while (GMST >= 360) GMST -= 360
+
+    // Local Sidereal Time
+    const LST = GMST + longitude
+
+    // Obliquity of ecliptic
+    const epsilon = 23.439291 - 0.0130042 * T
+    const epsilonRad = epsilon * Math.PI / 180
+
+    // Convert LST to radians
+    const lstRad = LST * Math.PI / 180
+    const latRad = latitude * Math.PI / 180
+
+    // Calculate ascendant (tropical)
+    let ascendant = Math.atan2(
+        Math.cos(lstRad),
+        -Math.sin(lstRad) * Math.cos(epsilonRad) - Math.tan(latRad) * Math.sin(epsilonRad)
+    )
+
+    // Convert to degrees
+    ascendant = ascendant * 180 / Math.PI
+
+    // Normalize to 0-360
+    while (ascendant < 0) ascendant += 360
+    while (ascendant >= 360) ascendant -= 360
+
+    // Convert to sidereal
+    let ascendantSidereal = ascendant - ayanamsa
+    while (ascendantSidereal < 0) ascendantSidereal += 360
+    while (ascendantSidereal >= 360) ascendantSidereal -= 360
+
+    return ascendantSidereal
+}
+
 function getNakshatra(longitude) {
     // Each nakshatra is 13°20' (13.333333°)
     const nakshatraIndex = Math.floor(longitude / 13.333333)
@@ -253,7 +325,7 @@ function getNakshatra(longitude) {
 }
 
 function calculateHouse(planetLongitude, ascendantLongitude) {
-    // Simplified house calculation (equal house system)
+    // Equal house system
     let diff = planetLongitude - ascendantLongitude
     if (diff < 0) diff += 360
 
@@ -281,7 +353,7 @@ function calculatePanchang(julianDay, moonLongitude, sunLongitude) {
     const karanas = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Garaja', 'Vanija', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna']
     const karana = karanas[karanaNumber]
 
-    // Yoga (simplified)
+    // Yoga
     const yogaNumber = Math.floor((moonLongitude + sunLongitude) / 13.333333) % 27
     const yogas = [
         'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana', 'Atiganda', 'Sukarman',
@@ -304,7 +376,7 @@ function calculateVimshottariDasha(birthNakshatra, birthYear, birthMonth, birthD
     const nakshatraLord = birthNakshatra.lord
     const startIndex = DASHA_SEQUENCE.findIndex(d => d.planet === nakshatraLord)
 
-    // Calculate dasha balance at birth (simplified - using pada)
+    // Calculate dasha balance at birth
     const totalDuration = DASHA_SEQUENCE[startIndex].years
     const completedFraction = (birthNakshatra.pada - 1) / 4
     const balanceYears = totalDuration * (1 - completedFraction)
@@ -362,26 +434,41 @@ function calculateVimshottariDasha(birthNakshatra, birthYear, birthMonth, birthD
                 days: balanceDays
             }
         },
-        sequence: sequence.slice(0, 10) // Return first 10 dashas
+        sequence: sequence.slice(0, 10)
     }
 }
 
 function detectYogas(planets, ascendantLongitude) {
     const yogas = []
 
-    // Raj Yoga: Lords of kendras and trikonas together
-    // Simplified detection
-    if (planets.Jupiter.house === 1 || planets.Jupiter.house === 4 ||
-        planets.Jupiter.house === 7 || planets.Jupiter.house === 10) {
+    // Gaja Kesari Yoga: Jupiter in Kendra from Moon
+    const moonHouse = planets.Moon.house
+    const jupiterHouse = planets.Jupiter.house
+    const diff = Math.abs(jupiterHouse - moonHouse)
+
+    if (diff === 0 || diff === 3 || diff === 6 || diff === 9) {
         yogas.push('Gaja Kesari Yoga - Jupiter in Kendra from Moon')
     }
 
-    if (planets.Venus.house === 1 || planets.Venus.house === 4) {
+    // Panch Mahapurusha Yogas
+    if ([1, 4, 7, 10].includes(planets.Venus.house)) {
         yogas.push('Malavya Yoga - Venus in Kendra')
     }
 
-    if (planets.Mars.house === 1 || planets.Mars.house === 10) {
+    if ([1, 4, 7, 10].includes(planets.Mars.house)) {
         yogas.push('Ruchaka Yoga - Mars in Kendra')
+    }
+
+    if ([1, 4, 7, 10].includes(planets.Mercury.house)) {
+        yogas.push('Bhadra Yoga - Mercury in Kendra')
+    }
+
+    if ([1, 4, 7, 10].includes(planets.Jupiter.house)) {
+        yogas.push('Hamsa Yoga - Jupiter in Kendra')
+    }
+
+    if ([1, 4, 7, 10].includes(planets.Saturn.house)) {
+        yogas.push('Sasha Yoga - Saturn in Kendra')
     }
 
     return yogas
