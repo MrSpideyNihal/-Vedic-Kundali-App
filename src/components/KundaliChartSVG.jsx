@@ -1,4 +1,4 @@
-// SVG-based Kundali Chart Component (North Indian Diamond/Rhombus Style - Dhruv Astro Format)
+// SVG-based Kundali Chart Component (North Indian Diamond Style - EXACT Dhruv Astro Match)
 
 export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
     const PLANET_SYMBOLS = {
@@ -28,12 +28,11 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         'Pisces': 'मी'
     }
 
-    // Initialize houses with planets and signs
+    // Initialize houses - store planets and signs
     const houses = Array(12).fill(null).map(() => ({ planets: [], sign: '' }))
 
     // Place planets and signs in houses
     if (chartType === 'lagna') {
-        // Lagna chart - use actual house positions
         Object.entries(kundaliData.planets).forEach(([planet, data]) => {
             const houseIndex = data.house - 1
             houses[houseIndex].planets.push(PLANET_SYMBOLS[planet])
@@ -41,13 +40,11 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
                 houses[houseIndex].sign = SIGN_SYMBOLS[data.sign]
             }
         })
-        // Add ascendant marker and sign to first house
         houses[0].planets.push('ल')
         if (kundaliData.ascendant) {
             houses[0].sign = SIGN_SYMBOLS[kundaliData.ascendant.sign]
         }
     } else if (chartType === 'navamsha') {
-        // Navamsha chart
         Object.entries(kundaliData.planets).forEach(([planet, data]) => {
             if (data.navamsha && data.navamsha.longitude !== undefined) {
                 const navamshaAscLong = kundaliData.navamshaAscendant?.longitude || 0
@@ -68,117 +65,186 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         }
     }
 
-    // Diamond chart dimensions
-    const width = 460
-    const height = 460
+    const width = 470
+    const height = 470
     const centerX = width / 2
     const centerY = height / 2
-    const radius = 190
+    const outerRadius = 195
 
     // Diamond corners
-    const corners = {
-        top: { x: centerX, y: centerY - radius },
-        right: { x: centerX + radius, y: centerY },
-        bottom: { x: centerX, y: centerY + radius },
-        left: { x: centerX - radius, y: centerY }
-    }
+    const T = { x: centerX, y: centerY - outerRadius }        // Top
+    const R = { x: centerX + outerRadius, y: centerY }        // Right
+    const B = { x: centerX, y: centerY + outerRadius }        // Bottom
+    const L = { x: centerX - outerRadius, y: centerY }        // Left
 
-    // House positions matching Dhruv Astro diamond layout
-    const houseData = [
-        // House 1 - Right (Lagna) 
-        { center: { x: centerX + radius * 0.65, y: centerY }, signPos: { x: centerX + radius * 0.85, y: centerY - 5 } },
-        // House 2 - Top-Right
-        { center: { x: centerX + radius * 0.42, y: centerY - radius * 0.42 }, signPos: { x: centerX + radius * 0.65, y: centerY - radius * 0.65 } },
-        // House 3 - Top (mid-upper)
-        { center: { x: centerX, y: centerY - radius * 0.52 }, signPos: { x: centerX + 15, y: centerY - radius * 0.75 } },
-        // House 4 - Top-Left
-        { center: { x: centerX - radius * 0.42, y: centerY - radius * 0.42 }, signPos: { x: centerX - radius * 0.65, y: centerY - radius * 0.65 } },
-        // House 5 - Left (mid-upper)
-        { center: { x: centerX - radius * 0.65, y: centerY }, signPos: { x: centerX - radius * 0.85, y: centerY - 5 } },
-        // House 6 - Left-Bottom
-        { center: { x: centerX - radius * 0.42, y: centerY + radius * 0.42 }, signPos: { x: centerX - radius * 0.65, y: centerY + radius * 0.65 } },
-        // House 7 - Bottom (opposite lagna)
-        { center: { x: centerX, y: centerY + radius * 0.52 }, signPos: { x: centerX - 15, y: centerY + radius * 0.75 } },
-        // House 8 - Bottom-Right
-        { center: { x: centerX + radius * 0.42, y: centerY + radius * 0.42 }, signPos: { x: centerX + radius * 0.65, y: centerY + radius * 0.65 } },
+    // Inner diamond points (for houses 9, 10, 11, 12 in center)
+    const innerRadius = outerRadius * 0.42
+    const IT = { x: centerX, y: centerY - innerRadius }
+    const IR = { x: centerX + innerRadius, y: centerY }
+    const IB = { x: centerX, y: centerY + innerRadius }
+    const IL = { x: centerX - innerRadius, y: centerY }
+
+    // EXACT North Indian house layout matching Dhruv Astro
+    // Outer houses: 1-8, Inner houses: 9-12
+    const houseLayout = [
+        // House 1 - RIGHT side (Lagna)
+        {
+            number: 1,
+            textPos: { x: R.x - 35, y: centerY + 5 },
+            planetPos: { x: R.x - 60, y: centerY + 5 },
+            signPos: { x: R.x - 20, y: centerY - 25 }
+        },
+        // House 2 - Top-Right corner
+        {
+            number: 2,
+            textPos: { x: centerX + outerRadius * 0.55, y: centerY - outerRadius * 0.45 },
+            planetPos: { x: centerX + outerRadius * 0.55, y: centerY - outerRadius * 0.3 },
+            signPos: { x: centerX + outerRadius * 0.75, y: centerY - outerRadius * 0.7 }
+        },
+        // House 3 - Top area (upper right quadrant)
+        {
+            number: 3,
+            textPos: { x: centerX + outerRadius * 0.22, y: centerY - outerRadius * 0.65 },
+            planetPos: { x: centerX + outerRadius * 0.22, y: centerY - outerRadius * 0.5 },
+            signPos: { x: centerX + outerRadius * 0.35, y: centerY - outerRadius * 0.85 }
+        },
+        // House 4 - TOP point
+        {
+            number: 4,
+            textPos: { x: centerX - outerRadius * 0.22, y: centerY - outerRadius * 0.65 },
+            planetPos: { x: centerX - outerRadius * 0.22, y: centerY - outerRadius * 0.5 },
+            signPos: { x: T.x - 5, y: T.y - 15 }
+        },
+        // House 5 - Top-Left area
+        {
+            number: 5,
+            textPos: { x: centerX - outerRadius * 0.55, y: centerY - outerRadius * 0.45 },
+            planetPos: { x: centerX - outerRadius * 0.55, y: centerY - outerRadius * 0.3 },
+            signPos: { x: centerX - outerRadius * 0.75, y: centerY - outerRadius * 0.7 }
+        },
+        // House 6 - LEFT-Top corner
+        {
+            number: 6,
+            textPos: { x: L.x + 35, y: centerY - 40 },
+            planetPos: { x: L.x + 60, y: centerY - 25 },
+            signPos: { x: L.x + 20, y: centerY - 65 }
+        },
+        // House 7 - LEFT side (opposite lagna)
+        {
+            number: 7,
+            textPos: { x: L.x + 35, y: centerY + 40 },
+            planetPos: { x: L.x + 60, y: centerY + 25 },
+            signPos: { x: L.x + 20, y: centerY + 65 }
+        },
+        // House 8 - Bottom-Left corner
+        {
+            number: 8,
+            textPos: { x: centerX - outerRadius * 0.55, y: centerY + outerRadius * 0.45 },
+            planetPos: { x: centerX - outerRadius * 0.55, y: centerY + outerRadius * 0.3 },
+            signPos: { x: centerX - outerRadius * 0.75, y: centerY + outerRadius * 0.7 }
+        },
         // House 9 - Inner Top-Left
-        { center: { x: centerX - radius * 0.25, y: centerY - radius * 0.30 }, signPos: { x: centerX - radius * 0.35, y: centerY - radius * 0.48 } },
-        // House 10 - Inner Top
-        { center: { x: centerX, y: centerY - radius * 0.15 }, signPos: { x: centerX, y: centerY - radius * 0.35 } },
+        {
+            number: 9,
+            textPos: { x: centerX - innerRadius * 0.5, y: centerY - innerRadius * 0.5 },
+            planetPos: { x: centerX - innerRadius * 0.5, y: centerY - innerRadius * 0.35 },
+            signPos: { x: centerX - innerRadius * 0.7, y: centerY - innerRadius * 0.75 }
+        },
+        // House 10 - Inner TOP
+        {
+            number: 10,
+            textPos: { x: centerX, y: centerY - innerRadius * 0.7 },
+            planetPos: { x: centerX, y: centerY - innerRadius * 0.55 },
+            signPos: { x: centerX, y: centerY - innerRadius * 0.9 }
+        },
         // House 11 - Inner Top-Right
-        { center: { x: centerX + radius * 0.25, y: centerY - radius * 0.30 }, signPos: { x: centerX + radius * 0.35, y: centerY - radius * 0.48 } },
+        {
+            number: 11,
+            textPos: { x: centerX + innerRadius * 0.5, y: centerY - innerRadius * 0.5 },
+            planetPos: { x: centerX + innerRadius * 0.5, y: centerY - innerRadius * 0.35 },
+            signPos: { x: centerX + innerRadius * 0.7, y: centerY - innerRadius * 0.75 }
+        },
         // House 12 - Inner Right
-        { center: { x: centerX + radius * 0.25, y: centerY + radius * 0.30 }, signPos: { x: centerX + radius * 0.35, y: centerY + radius * 0.48 } }
+        {
+            number: 12,
+            textPos: { x: centerX + innerRadius * 0.6, y: centerY + innerRadius * 0.2 },
+            planetPos: { x: centerX + innerRadius * 0.6, y: centerY + innerRadius * 0.35 },
+            signPos: { x: centerX + innerRadius * 0.8, y: centerY + innerRadius * 0.5 }
+        }
     ]
 
     return (
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto">
-            {/* Outer diamond border */}
+            {/* Outer diamond */}
             <polygon
-                points={`${corners.top.x},${corners.top.y} ${corners.right.x},${corners.right.y} ${corners.bottom.x},${corners.bottom.y} ${corners.left.x},${corners.left.y}`}
-                fill="#FFFEF9"
+                points={`${T.x},${T.y} ${R.x},${R.y} ${B.x},${B.y} ${L.x},${L.y}`}
+                fill="#FFFEF8"
                 stroke="#D4AF37"
                 strokeWidth="2.5"
             />
 
             {/* Main cross lines */}
-            <line x1={corners.left.x} y1={corners.left.y} x2={corners.right.x} y2={corners.right.y} stroke="#4A90E2" strokeWidth="2" />
-            <line x1={corners.top.x} y1={corners.top.y} x2={corners.bottom.x} y2={corners.bottom.y} stroke="#4A90E2" strokeWidth="2" />
+            <line x1={L.x} y1={L.y} x2={R.x} y2={R.y} stroke="#6BA3D4" strokeWidth="2" />
+            <line x1={T.x} y1={T.y} x2={B.x} y2={B.y} stroke="#6BA3D4" strokeWidth="2" />
 
-            {/* Inner diagonal lines */}
-            <line x1={centerX - radius * 0.5} y1={centerY - radius * 0.5} x2={centerX + radius * 0.5} y2={centerY + radius * 0.5} stroke="#90C8E8" strokeWidth="1.5" />
-            <line x1={centerX + radius * 0.5} y1={centerY - radius * 0.5} x2={centerX - radius * 0.5} y2={centerY + radius * 0.5} stroke="#90C8E8" strokeWidth="1.5" />
+            {/* Inner diamond */}
+            <polygon
+                points={`${IT.x},${IT.y} ${IR.x},${IR.y} ${IB.x},${IB.y} ${IL.x},${IL.y}`}
+                fill="none"
+                stroke="#A8C5E0"
+                strokeWidth="1.5"
+            />
 
-            {/* Corner to mid-edge lines */}
-            <line x1={corners.top.x} y1={corners.top.y} x2={centerX} y2={centerY - radius * 0.5} stroke="#B8B09B" strokeWidth="1.2" />
-            <line x1={corners.right.x} y1={corners.right.y} x2={centerX + radius * 0.5} y2={centerY} stroke="#FFB380" strokeWidth="1.2" />
-            <line x1={corners.bottom.x} y1={corners.bottom.y} x2={centerX} y2={centerY + radius * 0.5} stroke="#B4E4B4" strokeWidth="1.2" />
-            <line x1={corners.left.x} y1={corners.left.y} x2={centerX - radius * 0.5} y2={centerY} stroke="#B8B09B" strokeWidth="1.2" />
+            {/* Diagonal lines from corners to inner diamond */}
+            <line x1={T.x} y1={T.y} x2={IL.x} y2={IL.y} stroke="#C4B99D" strokeWidth="1.3" />
+            <line x1={T.x} y1={T.y} x2={IR.x} y2={IR.y} stroke="#FFB380" strokeWidth="1.3" />
+            <line x1={B.x} y1={B.y} x2={IL.x} y2={IL.y} stroke="#B4D4B4" strokeWidth="1.3" />
+            <line x1={B.x} y1={B.y} x2={IR.x} y2={IR.y} stroke="#6BA3D4" strokeWidth="1.3" />
 
-            {/* Houses, signs, and planets */}
-            {houseData.map((house, idx) => {
-                const houseInfo = houses[idx]
+            {/* House numbers, planets, and signs */}
+            {houseLayout.map((house, idx) => {
+                const houseData = houses[idx]
                 return (
                     <g key={idx}>
                         {/* House number */}
                         <text
-                            x={house.center.x}
-                            y={house.center.y - 18}
+                            x={house.textPos.x}
+                            y={house.textPos.y}
                             fontSize="15"
                             fill="#555"
                             textAnchor="middle"
                             fontWeight="600"
                         >
-                            {idx + 1}
+                            {house.number}
                         </text>
 
                         {/* Sign symbol */}
-                        {houseInfo.sign && (
+                        {houseData.sign && (
                             <text
                                 x={house.signPos.x}
                                 y={house.signPos.y}
                                 fontSize="16"
-                                fill="#FF8C42"
+                                fill="#FF8834"
                                 textAnchor="middle"
                                 fontWeight="700"
-                                fontFamily="Noto Sans Devanagari"
+                                fontFamily="Noto Sans Devanagari, sans-serif"
                             >
-                                {houseInfo.sign}
+                                {houseData.sign}
                             </text>
                         )}
 
-                        {/* Planet symbols */}
-                        {houseInfo.planets.length > 0 && (
+                        {/* Planets */}
+                        {houseData.planets.length > 0 && (
                             <text
-                                x={house.center.x}
-                                y={house.center.y + 8}
+                                x={house.planetPos.x}
+                                y={house.planetPos.y}
                                 fontSize="17"
                                 fill="#FF6B35"
                                 textAnchor="middle"
                                 fontWeight="bold"
-                                fontFamily="Noto Sans Devanagari"
+                                fontFamily="Noto Sans Devanagari, sans-serif"
                             >
-                                {houseInfo.planets.join(' ')}
+                                {houseData.planets.join(' ')}
                             </text>
                         )}
                     </g>
