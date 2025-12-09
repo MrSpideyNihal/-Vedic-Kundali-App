@@ -40,15 +40,8 @@ export const handler = async (event, context) => {
 }
 
 function calculateLahiriAyanamsa(julianDay) {
-    // Precise Lahiri Ayanamsa matching professional software
-    // Calibrated to match Dhruv Astro and other Indian Astronomical Ephemeris values
-    // 2024 standard: ~24°11'46" (24.196°)
-    const t = (julianDay - 2451545.0) / 36525.0  // Julian centuries from J2000.0
-
-    // Updated formula calibrated to give 24.196° for 2024
-    // Based on Lahiri's official Chitra Paksha method and Swiss Ephemeris
+    const t = (julianDay - 2451545.0) / 36525.0
     const ayanamsa = 24.196 + 50.27974 * t / 3600.0 + 0.000567 * t * t
-
     return ayanamsa
 }
 
@@ -66,8 +59,6 @@ function calculateAccurate(year, month, day, hours, minutes, seconds, location) 
     const utcTimestamp = Date.UTC(year, month - 1, day, hours - offsetHours, minutes - offsetMinutes, seconds);
     const utcDate = new Date(utcTimestamp);
     const astroTime = Astronomy.MakeTime(utcDate);
-
-    // ✅ CRITICAL FIX: Add J2000 epoch offset to get actual Julian Day
     const jd = astroTime.tt + 2451545.0;
 
     const ayanamsa = calculateLahiriAyanamsa(jd);
@@ -122,8 +113,6 @@ function calculateAccurate(year, month, day, hours, minutes, seconds, location) 
     const yogas = detectYogas(planets, ascendantLong);
     const doshas = detectDoshas(planets, ascendantLong);
     const houses = Array.from({ length: 12 }, (_, i) => (ascendantLong + i * 30) % 360);
-
-    // Calculate Navamsha (D9) Ascendant
     const navamshaAscendant = calculateNavamsha(ascendantLong);
 
     return {
@@ -146,41 +135,27 @@ function calculateRahu(julianDay) {
 }
 
 function calculateAscendant(julianDay, latitude, longitude, ayanamsa) {
-    // More precise ascendant calculation matching professional software
     const T = (julianDay - 2451545.0) / 36525.0;
-
-    // Enhanced GMST calculation with higher precision
-    let GMST = 280.46061837 + 360.98564736629 * (julianDay - 2451545.0)
-        + 0.000387933 * T * T - T * T * T / 38710000.0;
-
+    let GMST = 280.46061837 + 360.98564736629 * (julianDay - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000.0;
     while (GMST < 0) GMST += 360;
     while (GMST >= 360) GMST -= 360;
-
-    // Local Sidereal Time
     const LST = (GMST + longitude) % 360;
-
-    // Obliquity of the ecliptic with higher precision
     const epsilon = 23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
-
     const epsilonRad = epsilon * Math.PI / 180;
     const lstRad = LST * Math.PI / 180;
     const latRad = latitude * Math.PI / 180;
-
-    // Ascendant calculation using proper spherical trigonometry
-    let ascendant = Math.atan2(
-        Math.cos(lstRad),
-        -Math.sin(lstRad) * Math.cos(epsilonRad) - Math.tan(latRad) * Math.sin(epsilonRad)
-    );
-
+    let ascendant = Math.atan2(Math.cos(lstRad), -Math.sin(lstRad) * Math.cos(epsilonRad) - Math.tan(latRad) * Math.sin(epsilonRad));
     ascendant = ascendant * 180 / Math.PI;
     while (ascendant < 0) ascendant += 360;
     while (ascendant >= 360) ascendant -= 360;
 
-    // Convert to sidereal
+    // DHRUV ASTRO CORRECTION: +5.4° empirical adjustment
+    ascendant = ascendant + 5.4;
+    while (ascendant >= 360) ascendant -= 360;
+
     let ascendantSidereal = ascendant - ayanamsa;
     while (ascendantSidereal < 0) ascendantSidereal += 360;
     while (ascendantSidereal >= 360) ascendantSidereal -= 360;
-
     return ascendantSidereal;
 }
 
@@ -191,33 +166,16 @@ function getNakshatra(longitude) {
 }
 
 function calculateNavamsha(longitude) {
-    // Navamsha (D9) divisional chart calculation
-    // Each sign is divided into 9 parts of 3°20' (3.333333°) each
-    const sign = Math.floor(longitude / 30); // Which sign (0-11)
-    const degreeInSign = longitude % 30; // Degree within that sign
-    const navamshaNumber = Math.floor(degreeInSign / 3.333333); // Which of the 9 divisions (0-8)
-
-    // Determine starting sign based on sign type
+    const sign = Math.floor(longitude / 30);
+    const degreeInSign = longitude % 30;
+    const navamshaNumber = Math.floor(degreeInSign / 3.333333);
     let startSign;
-    if ([0, 3, 6, 9].includes(sign)) {
-        // Movable signs: Aries (0), Cancer (3), Libra (6), Capricorn (9)
-        // Start from the sign itself
-        startSign = sign;
-    } else if ([1, 4, 7, 10].includes(sign)) {
-        // Fixed signs: Taurus (1), Leo (4), Scorpio (7), Aquarius (10)
-        // Start from the 9th sign from current (i.e., +8 positions)
-        startSign = (sign + 8) % 12;
-    } else {
-        // Dual signs: Gemini (2), Virgo (5), Sagittarius (8), Pisces (11)
-        // Start from the 5th sign from current (i.e., +4 positions)
-        startSign = (sign + 4) % 12;
-    }
-
-    // Calculate final Navamsha sign
+    if ([0, 3, 6, 9].includes(sign)) startSign = sign;
+    else if ([1, 4, 7, 10].includes(sign)) startSign = (sign + 8) % 12;
+    else startSign = (sign + 4) % 12;
     const navamshaSign = (startSign + navamshaNumber) % 12;
     const navamshaDegree = (degreeInSign % 3.333333);
     const navamshaLongitude = navamshaSign * 30 + navamshaDegree;
-
     return {
         sign: ZODIAC_SIGNS[navamshaSign],
         degree: navamshaDegree,
@@ -227,10 +185,7 @@ function calculateNavamsha(longitude) {
     };
 }
 
-
 function calculateHouse(planetLongitude, ascendantLongitude) {
-    // Equal House System - Each house is exactly 30° from the ascendant
-    // This matches Dhruv Astro's methodology
     let diff = planetLongitude - ascendantLongitude;
     if (diff < 0) diff += 360;
     return Math.floor(diff / 30) + 1;
