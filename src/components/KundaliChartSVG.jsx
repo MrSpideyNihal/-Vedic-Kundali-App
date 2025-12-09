@@ -1,4 +1,4 @@
-// FINAL - Exact Dhruv Astro Diamond Chart - NO MORE CHANGES
+// North Indian RECTANGULAR GRID Chart - Dhruv Astro Style
 
 export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
     const PLANET_SYMBOLS = {
@@ -42,41 +42,57 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         }
     }
 
-    const w = 470, h = 450, cx = w / 2, cy = h / 2, r = 170
-    const T = { x: cx, y: cy - r }, R = { x: cx + r, y: cy }, B = { x: cx, y: cy + r }, L = { x: cx - r, y: cy }
+    const w = 490, h = 310, m = 40
+    const cx = w / 2, cy = h / 2
+    const col1 = m, col2 = w * 0.3, col3 = cx, col4 = w * 0.7, col5 = w - m
+    const row1 = m, row2 = cy, row3 = h - m
 
-    // Exact Dhruv Astro house positions
+    // Rectangular grid house positions (North Indian)
     const pos = [
-        { n: 1, nx: R.x - 25, ny: cy, sx: R.x - 12, sy: cy - 22, px: R.x - 50, py: cy + 5 },
-        { n: 2, nx: cx + r * 0.55, ny: cy + r * 0.38, sx: cx + r * 0.72, sy: cy + r * 0.65, px: cx + r * 0.45, py: cy + r * 0.28 },
-        { n: 3, nx: cx + r * 0.22, ny: B.y - 40, sx: cx + r * 0.42, sy: B.y - 12, px: cx + r * 0.18, py: B.y - 65 },
-        { n: 4, nx: cx, ny: B.y - 50, sx: cx, sy: B.y - 18, px: cx, py: B.y - 75 },
-        { n: 5, nx: cx - r * 0.22, ny: B.y - 40, sx: cx - r * 0.42, sy: B.y - 12, px: cx - r * 0.18, py: B.y - 65 },
-        { n: 6, nx: cx - r * 0.55, ny: cy + r * 0.38, sx: cx - r * 0.72, sy: cy + r * 0.65, px: cx - r * 0.45, py: cy + r * 0.28 },
-        { n: 7, nx: L.x + 25, ny: cy, sx: L.x + 12, sy: cy - 22, px: L.x + 50, py: cy + 5 },
-        { n: 8, nx: cx - r * 0.55, ny: cy - r * 0.38, sx: cx - r * 0.72, sy: cy - r * 0.65, px: cx - r * 0.45, py: cy - r * 0.28 },
-        { n: 9, nx: cx - r * 0.28, ny: T.y + 70, sx: cx - r * 0.45, sy: T.y + 42, px: cx - r * 0.22, py: T.y + 95 },
-        { n: 10, nx: cx, ny: T.y + 65, sx: cx, sy: T.y + 35, px: cx, py: T.y + 92 },
-        { n: 11, nx: cx + r * 0.28, ny: T.y + 70, sx: cx + r * 0.45, sy: T.y + 42, px: cx + r * 0.22, py: T.y + 95 },
-        { n: 12, nx: cx + r * 0.3, ny: cy + r * 0.05, sx: cx + r * 0.48, sy: cy + r * 0.28, px: cx + r * 0.25, py: cy - r * 0.05 }
+        { n: 1, x: col5 - 15, y: cy, sx: col5 - 10, sy: cy - 18, px: col5 - 35, py: cy + 5 },           // Right
+        { n: 2, x: col4 + 15, y: row3 - 15, sx: col4 + 20, sy: row3 - 8, px: col4, py: row3 - 35 },     // Bottom-Right
+        { n: 3, x: col3 + 45, y: row3 - 15, sx: col3 + 50, sy: row3 - 8, px: col3 + 30, py: row3 - 35 },  // Bottom center-right
+        { n: 4, x: col3, y: row3 - 15, sx: col3, sy: row3 - 8, px: col3, py: row3 - 35 },           // Bottom center
+        { n: 5, x: col3 - 45, y: row3 - 15, sx: col3 - 50, sy: row3 - 8, px: col3 - 30, py: row3 - 35 },  // Bottom center-left
+        { n: 6, x: col2 - 15, y: row3 - 15, sx: col2 - 20, sy: row3 - 8, px: col2, py: row3 - 35 },     // Bottom-Left
+        { n: 7, x: col1 + 15, y: cy, sx: col1 + 10, sy: cy - 18, px: col1 + 35, py: cy + 5 },           // Left
+        { n: 8, x: col1 + 40, y: row1 + 15, sx: col1 + 35, sy: row1 + 10, px: col1 + 60, py: row1 + 35 }, // Top-Left corner
+        { n: 9, x: col2 - 15, y: row1 + 35, sx: col2 - 20, sy: row1 + 22, px: col2, py: row1 + 60 },    // Top-Left
+        { n: 10, x: col3, y: row1 + 35, sx: col3, sy: row1 + 22, px: col3, py: row1 + 62 },         // Top center
+        { n: 11, x: col4 + 15, y: row1 + 35, sx: col4 + 20, sy: row1 + 22, px: col4, py: row1 + 60 },   // Top-Right
+        { n: 12, x: col5 - 40, y: row1 + 15, sx: col5 - 35, sy: row1 + 10, px: col5 - 60, py: row1 + 35 } // Top-Right corner
     ]
 
     return (
         <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
-            <rect x="15" y="10" width={w - 30} height={h - 20} fill="#FFFEF8" stroke="#D4AF37" strokeWidth="2.5" rx="2" />
-            <polygon points={`${T.x},${T.y} ${R.x},${R.y} ${B.x},${B.y} ${L.x},${L.y}`} fill="none" stroke="#D4AF37" strokeWidth="2.5" />
-            <line x1={L.x} y1={L.y} x2={R.x} y2={R.y} stroke="#6BA3D4" strokeWidth="2" />
-            <line x1={T.x} y1={T.y} x2={B.x} y2={B.y} stroke="#6BA3D4" strokeWidth="2" />
-            <line x1={T.x} y1={T.y} x2={L.x + r * 0.5} y2={cy - r * 0.5} stroke="#90C090" strokeWidth="1.5" />
-            <line x1={T.x} y1={T.y} x2={R.x - r * 0.5} y2={cy - r * 0.5} stroke="#FFB380" strokeWidth="1.5" />
-            <line x1={B.x} y1={B.y} x2={L.x + r * 0.5} y2={cy + r * 0.5} stroke="#90C090" strokeWidth="1.5" />
-            <line x1={B.x} y1={B.y} x2={R.x - r * 0.5} y2={cy + r * 0.5} stroke="#6BA3D4" strokeWidth="1.5" />
-            <polygon points={`${cx},${T.y + r * 0.38} ${R.x - r * 0.5},${cy} ${cx},${cy + r * 0.38} ${L.x + r * 0.5},${cy}`} fill="none" stroke="#A8C5E0" strokeWidth="1.5" />
+            {/* Outer rectangle */}
+            <rect x="5" y="5" width={w - 10} height={h - 10} fill="#FFFEF8" stroke="#D4AF37" strokeWidth="2.5" rx="2" />
+
+            {/* Main grid lines */}
+            <line x1={col1} y1={cy} x2={col5} y2={cy} stroke="#6BA3D4" strokeWidth="2" />
+            <line x1={cx} y1={row1} x2={cx} y2={row3} stroke="#6BA3D4" strokeWidth="2" />
+
+            {/* Diagonal lines */}
+            <line x1={col1} y1={row1} x2={cx} y2={cy} stroke="#90C090" strokeWidth="1.5" />
+            <line x1={col5} y1={row1} x2={cx} y2={cy} stroke="#FFB380" strokeWidth="1.5" />
+            <line x1={col1} y1={row3} x2={cx} y2={cy} stroke="#90C090" strokeWidth="1.5" />
+            <line x1={col5} y1={row3} x2={cx} y2={cy} stroke="#6BA3D4" strokeWidth="1.5" />
+
+            {/* Vertical dividers */}
+            <line x1={col2} y1={row1} x2={col2} y2={cy} stroke="#A8C5E0" strokeWidth="1.2" />
+            <line x1={col4} y1={row1} x2={col4} y2={cy} stroke="#A8C5E0" strokeWidth="1.2" />
+            <line x1={col2} y1={cy} x2={col2} y2={row3} stroke="#A8C5E0" strokeWidth="1.2" />
+            <line x1={col4} y1={cy} x2={col4} y2={row3} stroke="#A8C5E0" strokeWidth="1.2" />
+
+            {/* Inner rectangle for houses 9-12 */}
+            <rect x={col2} y={row1} width={col4 - col2} height={cy - row1} fill="none" stroke="#A8C5E0" strokeWidth="1.2" />
+
+            {/* Houses */}
             {pos.map((p, i) => {
                 const h = houses[i]
                 return (
                     <g key={i}>
-                        <text x={p.nx} y={p.ny} fontSize="13" fill="#666" textAnchor="middle" fontWeight="600">{p.n}</text>
+                        <text x={p.x} y={p.y} fontSize="13" fill="#666" textAnchor="middle" fontWeight="600">{p.n}</text>
                         {h.sign && <text x={p.sx} y={p.sy} fontSize="14" fill="#FF8834" textAnchor="middle" fontWeight="700" fontFamily="Noto Sans Devanagari">{h.sign}</text>}
                         {h.planets.length > 0 && <text x={p.px} y={p.py} fontSize="15" fill="#FF6B35" textAnchor="middle" fontWeight="bold" fontFamily="Noto Sans Devanagari">{h.planets.join(' ')}</text>}
                     </g>
