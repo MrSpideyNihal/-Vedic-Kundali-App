@@ -62,7 +62,7 @@ export default function KundaliChartSVG({ kundaliData, chartType = 'lagna' }) {
         // House 2 - RIGHT-BOTTOM  
         { n: 2, x: cx + diamondRadius * 0.55, y: cy + diamondRadius * 0.55, sx: cx + diamondRadius * 0.7, sy: cy + diamondRadius * 0.7, px: cx + diamondRadius * 0.4, py: cy + diamondRadius * 0.45 },
         // House 3 - BOTTOM-RIGHT
-        { n: 3, x: cx + diameter * 0.32, y: bottom.y - 35, sx: cx + diamondRadius * 0.45, sy: bottom.y - 15, px: cx + diamondRadius * 0.22, py: bottom.y - 55 },
+        { n: 3, x: cx + diamondRadius * 0.32, y: bottom.y - 35, sx: cx + diamondRadius * 0.45, sy: bottom.y - 15, px: cx + diamondRadius * 0.22, py: bottom.y - 55 },
         // House 4 - BOTTOM CENTER
         { n: 4, x: cx, y: bottom.y - 45, sx: cx, sy: bottom.y - 20, px: cx, py: bottom.y - 65 },
         // House 5 - BOTTOM-LEFT
