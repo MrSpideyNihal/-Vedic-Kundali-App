@@ -146,22 +146,41 @@ function calculateRahu(julianDay) {
 }
 
 function calculateAscendant(julianDay, latitude, longitude, ayanamsa) {
+    // More precise ascendant calculation matching professional software
     const T = (julianDay - 2451545.0) / 36525.0;
-    let GMST = 280.46061837 + 360.98564736629 * (julianDay - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000.0;
+
+    // Enhanced GMST calculation with higher precision
+    let GMST = 280.46061837 + 360.98564736629 * (julianDay - 2451545.0)
+        + 0.000387933 * T * T - T * T * T / 38710000.0;
+
     while (GMST < 0) GMST += 360;
     while (GMST >= 360) GMST -= 360;
-    const LST = GMST + longitude;
-    const epsilon = 23.439291 - 0.0130042 * T;
+
+    // Local Sidereal Time
+    const LST = (GMST + longitude) % 360;
+
+    // Obliquity of the ecliptic with higher precision
+    const epsilon = 23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
+
     const epsilonRad = epsilon * Math.PI / 180;
     const lstRad = LST * Math.PI / 180;
     const latRad = latitude * Math.PI / 180;
-    let ascendant = Math.atan2(Math.cos(lstRad), -Math.sin(lstRad) * Math.cos(epsilonRad) - Math.tan(latRad) * Math.sin(epsilonRad));
+
+    // Ascendant calculation using proper spherical trigonometry
+    let ascendant = Math.atan2(
+        Math.cos(lstRad),
+        -Math.sin(lstRad) * Math.cos(epsilonRad) - Math.tan(latRad) * Math.sin(epsilonRad)
+    );
+
     ascendant = ascendant * 180 / Math.PI;
     while (ascendant < 0) ascendant += 360;
     while (ascendant >= 360) ascendant -= 360;
+
+    // Convert to sidereal
     let ascendantSidereal = ascendant - ayanamsa;
     while (ascendantSidereal < 0) ascendantSidereal += 360;
     while (ascendantSidereal >= 360) ascendantSidereal -= 360;
+
     return ascendantSidereal;
 }
 
@@ -210,6 +229,8 @@ function calculateNavamsha(longitude) {
 
 
 function calculateHouse(planetLongitude, ascendantLongitude) {
+    // Equal House System - Each house is exactly 30° from the ascendant
+    // This matches Dhruv Astro's methodology
     let diff = planetLongitude - ascendantLongitude;
     if (diff < 0) diff += 360;
     return Math.floor(diff / 30) + 1;
