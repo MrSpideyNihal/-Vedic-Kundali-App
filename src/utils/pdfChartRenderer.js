@@ -1,5 +1,5 @@
 // PDF Chart Generator - Creates visual charts for PDF using pdfmake canvas
-// North Indian Diamond Style Kundali Charts
+// South Indian Rectangular Grid Style Kundali Charts
 
 export function generatePDFChart(kundaliData, chartType = 'lagna') {
     const houses = Array(12).fill(null).map(() => [])
@@ -18,91 +18,106 @@ export function generatePDFChart(kundaliData, chartType = 'lagna') {
         })
     }
 
-    // Create canvas-based diamond chart for PDF
-    const size = 400
-    const center = size / 2
-    const radius = size / 2.5
+    // Rectangular grid dimensions for PDF
+    const w = 440, h = 330
+    const cellW = 110, cellH = 82.5
 
-    // Calculate diamond points
-    const top = { x: center, y: center - radius }
-    const right = { x: center + radius, y: center }
-    const bottom = { x: center, y: center + radius }
-    const left = { x: center - radius, y: center }
-
-    // House positions in diamond layout (North Indian style)
-    const housePositions = [
-        { x: center + radius * 0.6, y: center - radius * 0.3 }, // 1
-        { x: center + radius * 0.6, y: center + radius * 0.3 }, // 2
-        { x: center + radius * 0.3, y: center + radius * 0.6 }, // 3
-        { x: center, y: center + radius * 0.8 }, // 4
-        { x: center - radius * 0.3, y: center + radius * 0.6 }, // 5
-        { x: center - radius * 0.6, y: center + radius * 0.3 }, // 6
-        { x: center - radius * 0.6, y: center - radius * 0.3 }, // 7
-        { x: center - radius * 0.3, y: center - radius * 0.6 }, // 8
-        { x: center, y: center - radius * 0.8 }, // 9
-        { x: center + radius * 0.3, y: center - radius * 0.6 }, // 10
-        { x: center + radius * 0.6, y: center - radius * 0.6 }, // 11
-        { x: center, y: center - radius * 0.4 }, // 12
+    // South Indian descending pattern: 12,1,2,3 / 11,X,X,4 / 10,X,X,5 / 9,8,7,6
+    const gridLayout = [
+        [11, 0, 1, 2],   // Row 0: Houses 12, 1, 2, 3
+        [10, -1, -1, 3], // Row 1: Houses 11, empty, empty, 4
+        [9, -1, -1, 4],  // Row 2: Houses 10, empty, empty, 5
+        [8, 7, 6, 5]     // Row 3: Houses 9, 8, 7, 6
     ]
 
     // Generate canvas drawing commands
     const canvas = [
-        // Outer diamond
+        // Outer border
         {
-            type: 'polyline',
-            lineWidth: 2,
-            lineColor: '#f97316',
-            closePath: true,
-            points: [
-                { x: top.x, y: top.y },
-                { x: right.x, y: right.y },
-                { x: bottom.x, y: bottom.y },
-                { x: left.x, y: left.y }
-            ]
-        },
-        // Inner cross lines
-        { type: 'line', x1: top.x, y1: top.y, x2: bottom.x, y2: bottom.y, lineWidth: 1, lineColor: '#f97316' },
-        { type: 'line', x1: left.x, y1: left.y, x2: right.x, y2: right.y, lineWidth: 1, lineColor: '#f97316' },
-        // Diagonal lines
-        { type: 'line', x1: center, y1: top.y, x2: right.x, y2: center, lineWidth: 1, lineColor: '#f97316' },
-        { type: 'line', x1: right.x, y1: center, x2: center, y2: bottom.y, lineWidth: 1, lineColor: '#f97316' },
-        { type: 'line', x1: center, y1: bottom.y, x2: left.x, y2: center, lineWidth: 1, lineColor: '#f97316' },
-        { type: 'line', x1: left.x, y1: center, x2: center, y2: top.y, lineWidth: 1, lineColor: '#f97316' },
+            type: 'rect',
+            x: 0,
+            y: 0,
+            w: w,
+            h: h,
+            lineWidth: 3,
+            lineColor: '#D4AF37'
+        }
     ]
+
+    // Draw grid cells
+    gridLayout.forEach((row, rowIdx) => {
+        row.forEach((houseIdx, colIdx) => {
+            const x = colIdx * cellW
+            const y = rowIdx * cellH
+
+            // Cell border
+            canvas.push({
+                type: 'rect',
+                x: x,
+                y: y,
+                w: cellW,
+                h: cellH,
+                lineWidth: 1.5,
+                lineColor: '#6BA3D4'
+            })
+        })
+    })
+
+    // Add decorative diagonal lines for inner cells
+    canvas.push(
+        { type: 'line', x1: cellW, y1: cellH, x2: cellW * 3, y2: cellH, lineWidth: 1, lineColor: '#90C090' },
+        { type: 'line', x1: cellW, y1: cellH * 3, x2: cellW * 3, y2: cellH * 3, lineWidth: 1, lineColor: '#90C090' },
+        { type: 'line', x1: cellW, y1: cellH, x2: cellW, y2: cellH * 3, lineWidth: 1, lineColor: '#FFB380' },
+        { type: 'line', x1: cellW * 3, y1: cellH, x2: cellW * 3, y2: cellH * 3, lineWidth: 1, lineColor: '#FFB380' },
+        { type: 'line', x1: cellW, y1: cellH, x2: cellW * 3, y2: cellH * 3, lineWidth: 1, lineColor: '#A8C5E0' },
+        { type: 'line', x1: cellW * 3, y1: cellH, x2: cellW, y2: cellH * 3, lineWidth: 1, lineColor: '#A8C5E0' }
+    )
 
     // Add house numbers and planets as text overlays
     const textElements = []
-    housePositions.forEach((pos, index) => {
-        const planetsInHouse = houses[index]
-        if (planetsInHouse.length > 0) {
-            textElements.push({
-                text: planetsInHouse.join(' '),
-                absolutePosition: { x: pos.x - 15, y: pos.y - 5 },
-                fontSize: 12,
-                bold: true,
-                color: '#f97316'
-            })
-        }
-        // House number
-        textElements.push({
-            text: (index + 1).toString(),
-            absolutePosition: { x: pos.x + 20, y: pos.y - 8 },
-            fontSize: 8,
-            color: '#666'
+    gridLayout.forEach((row, rowIdx) => {
+        row.forEach((houseIdx, colIdx) => {
+            if (houseIdx >= 0) {
+                const x = colIdx * cellW
+                const y = rowIdx * cellH
+                const planetsInHouse = houses[houseIdx]
+                const houseNum = houseIdx + 1
+
+                // House number - top left corner
+                textElements.push({
+                    text: houseNum.toString(),
+                    absolutePosition: { x: x + 8, y: y + 14 },
+                    fontSize: 11,
+                    bold: true,
+                    color: '#444'
+                })
+
+                // Planets - center of cell
+                if (planetsInHouse.length > 0) {
+                    textElements.push({
+                        text: planetsInHouse.join(' '),
+                        absolutePosition: { x: x + cellW / 2 - 15, y: y + cellH / 2 },
+                        fontSize: 14,
+                        bold: true,
+                        color: '#FF6B35',
+                        font: 'NotoSansDevanagari'
+                    })
+                }
+            }
         })
     })
 
     return {
         canvas,
-        width: size,
-        height: size,
+        width: w,
+        height: h,
         textElements
     }
 }
 
 function getPlanetSymbol(planet) {
     const symbols = {
-        Sun: 'सु',
+        Sun: 'सू',
         Moon: 'च',
         Mars: 'मं',
         Mercury: 'बु',
